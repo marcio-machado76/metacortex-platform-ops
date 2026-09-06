@@ -1,0 +1,9 @@
+# Copie para terraform.tfvars ou exporte como TF_VAR_* antes do apply.
+# terraform.tfvars esta no .gitignore.
+
+# Bloco CIDR autorizado a abrir SSH. Troque quando o seu IP mudar.
+ssh_ingress_cidr_block = "200.158.165.27/32"
+
+# true  -> libera saida para internet, necessario para preparar as VMs
+# false -> rede restrita a SSH, aplicar depois que as VMs ficarem prontas
+internet_egress_enabled = true

@@ -1,0 +1,57 @@
+#!/bin/bash
+# Prepara a VM para ficar DENTRO do baseline do parque.
+set -euxo pipefail
+export DEBIAN_FRONTEND=noninteractive
+
+# Usuario da coleta: sem sudo, de proposito.
+# E ele que produz o veredito nao_verificado nas regras que exigem privilegio.
+useradd --create-home --shell /bin/bash roster
+install -d -m 700 -o roster -g roster /home/roster/.ssh
+cat > /home/roster/.ssh/authorized_keys <<'CHAVES'
+${chave_platform}
+CHAVES
+chown roster:roster /home/roster/.ssh/authorized_keys
+chmod 600 /home/roster/.ssh/authorized_keys
+
+# servicos.ativos: containerd e chrony
+apt-get update
+apt-get install -y containerd chrony
+systemctl enable --now containerd chrony
+
+# servicos.ativos: node_exporter.
+# O pacote do Ubuntu instala a unidade como prometheus-node-exporter.service;
+# o baseline pede node_exporter, entao vai o binario oficial com unidade propria.
+NE_VERSAO=1.12.1
+curl -fsSL -o /tmp/node_exporter.tar.gz \
+  "https://github.com/prometheus/node_exporter/releases/download/v$NE_VERSAO/node_exporter-$NE_VERSAO.linux-amd64.tar.gz"
+tar -xzf /tmp/node_exporter.tar.gz -C /tmp
+install -m 0755 "/tmp/node_exporter-$NE_VERSAO.linux-amd64/node_exporter" /usr/local/bin/node_exporter
+useradd --system --no-create-home --shell /usr/sbin/nologin node_exporter
+
+# portas_em_escuta.somente_rede_interna: 9100 no IP privado, nunca em 0.0.0.0
+IP_INTERNO=$(hostname -I | awk '{print $1}')
+cat > /etc/systemd/system/node_exporter.service <<UNIT
+[Unit]
+Description=Prometheus Node Exporter
+After=network-online.target
+
+[Service]
+User=node_exporter
+ExecStart=/usr/local/bin/node_exporter --web.listen-address=$IP_INTERNO:9100
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+systemctl daemon-reload
+systemctl enable --now node_exporter
+
+# swap.habilitado: false
+swapoff -a
+sed -i '/\sswap\s/s/^/#/' /etc/fstab
+
+# ssh.login_de_root: false
+echo 'PermitRootLogin no' > /etc/ssh/sshd_config.d/99-metacortex.conf
+systemctl restart ssh
+
+touch /var/lib/metacortex-preparado
