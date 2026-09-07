@@ -1,0 +1,13 @@
+{
+  "eval_id": 1,
+  "eval_name": "chamado-1-oom",
+  "prompt": "o cliente nyx ta reclamando que a API de producao fica caindo sozinha. namespace nyx-prod. me diz o que houve",
+  "assertions": [
+    "Identifica OOMKilled como o motivo da terminacao do container",
+    "Cita o limite de memoria declarado (24Mi) como a causa, e nao apenas o sintoma",
+    "Aponta lastState.terminated (ou exitCode 137) como o campo que fecha o diagnostico",
+    "Registra que o nyx-postgres ao lado esta saudavel, descartando a dependencia",
+    "Nao conclui a partir do log do container, que esta vazio por construcao no OOM",
+    "Descreve a correcao sem aplica-la: nenhuma escrita no cluster"
+  ]
+}

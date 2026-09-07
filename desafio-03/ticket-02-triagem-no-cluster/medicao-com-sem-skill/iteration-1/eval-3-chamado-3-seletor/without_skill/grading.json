@@ -1,0 +1,38 @@
+{
+  "eval_name": "eval-3-chamado-3-seletor",
+  "configuration": "without_skill",
+  "expectations": [
+    {
+      "text": "Identifica a divergencia entre o seletor do Service e os rotulos do pod, citando os dois valores",
+      "passed": true,
+      "evidence": "app=nyx-api contra app=nyxapi"
+    },
+    {
+      "text": "Usa a ausencia de endereco no Endpoints ou EndpointSlice como evidencia",
+      "passed": true,
+      "evidence": "endpoints nyx-api <none>"
+    },
+    {
+      "text": "Reconhece explicitamente que pods, deployment e eventos estao saudaveis",
+      "passed": true,
+      "evidence": "pods Running/Ready, sem erros nos events"
+    },
+    {
+      "text": "Nao atribui a causa ao reinico isolado de um dos pods, que e ruido sem relacao com o 503",
+      "passed": true,
+      "evidence": "nao atribui — mas tambem nao chega a observar o reinicio"
+    },
+    {
+      "text": "Chega a causa cruzando dois objetos, e nao aprofundando em uma fonte so",
+      "passed": true,
+      "evidence": "compara seletor com rotulos"
+    },
+    {
+      "text": "Descreve a correcao sem aplica-la: nenhuma escrita no cluster",
+      "passed": true,
+      "evidence": "recomendacao nao executada; porem sai do escopo ao inspecionar nyx-prod, que e outro chamado, e infere 'a convencao correta' de uma amostra de um"
+    }
+  ],
+  "passed": 6,
+  "total": 6
+}

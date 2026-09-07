@@ -1,0 +1,38 @@
+{
+  "eval_name": "eval-2-chamado-2-tag-inexistente",
+  "configuration": "without_skill",
+  "expectations": [
+    {
+      "text": "Identifica que a tag v1.14.2 nao existe no registry",
+      "passed": true,
+      "evidence": "confirmou consultando as tags publicadas do repositorio"
+    },
+    {
+      "text": "Cita a mensagem crua do runtime como evidencia (not found / failed to resolve reference)",
+      "passed": true,
+      "evidence": "evento com 'not found' transcrito"
+    },
+    {
+      "text": "Usa restartCount igual a zero para concluir que o container nunca chegou a rodar",
+      "passed": false,
+      "evidence": "nao usa restartCount em nenhum ponto; conclui direto do ImagePullBackOff, perdendo o divisor que separa este caso de um crash"
+    },
+    {
+      "text": "Explica por que o pod nao trocou: o rollout nao avanca (Available=False ou replicas indisponiveis)",
+      "passed": true,
+      "evidence": "MinimumReplicasUnavailable e ProgressDeadlineExceeded citados"
+    },
+    {
+      "text": "Registra que o orion-postgres ao lado esta saudavel",
+      "passed": true,
+      "evidence": "banco declarado saudavel e descartado"
+    },
+    {
+      "text": "Descreve a correcao sem aplica-la: nenhuma escrita no cluster",
+      "passed": true,
+      "evidence": "recomendacao nao executada, mas extrapola o escopo da triagem ao propor mudanca de pipeline de CI/CD"
+    }
+  ],
+  "passed": 5,
+  "total": 6
+}

@@ -1,0 +1,35 @@
+############ CHAMADO 2 — orion-stg: a loja parou depois de uma publicacao do Loom ############
+
+--- 1. pods do namespace ---
+NAME                              READY   STATUS         RESTARTS   AGE   IP            NODE                           NOMINATED NODE   READINESS GATES
+orion-postgres-5797459b75-pkdz4   1/1     Running        0          76s   10.244.0.10   metacortex-lab-control-plane   <none>           <none>
+orion-web-556748f4f8-6dxbk        0/1     ErrImagePull   0          76s   10.244.0.13   metacortex-lab-control-plane   <none>           <none>
+orion-web-556748f4f8-fqtnb        0/1     ErrImagePull   0          76s   10.244.0.9    metacortex-lab-control-plane   <none>           <none>
+orion-web-556748f4f8-ww7km        0/1     ErrImagePull   0          76s   10.244.0.12   metacortex-lab-control-plane   <none>           <none>
+
+--- 2. estado do container (nao ha reinicio: ele nunca chegou a rodar) ---
+orion-web-556748f4f8-6dxbk
+  state={"waiting":{"message":"rpc error: code = NotFound desc = failed to pull and unpack image \"docker.io/fabricioveronez/fake-shop:v1.14.2\": failed to resolve reference \"docker.io/fabricioveronez/fake-shop:v1.14.2\": docker.io/fabricioveronez/fake-shop:v1.14.2: not found","reason":"ErrImagePull"}}
+orion-web-556748f4f8-fqtnb
+  state={"waiting":{"message":"rpc error: code = NotFound desc = failed to pull and unpack image \"docker.io/fabricioveronez/fake-shop:v1.14.2\": failed to resolve reference \"docker.io/fabricioveronez/fake-shop:v1.14.2\": docker.io/fabricioveronez/fake-shop:v1.14.2: not found","reason":"ErrImagePull"}}
+orion-web-556748f4f8-ww7km
+  state={"waiting":{"message":"rpc error: code = NotFound desc = failed to pull and unpack image \"docker.io/fabricioveronez/fake-shop:v1.14.2\": failed to resolve reference \"docker.io/fabricioveronez/fake-shop:v1.14.2\": docker.io/fabricioveronez/fake-shop:v1.14.2: not found","reason":"ErrImagePull"}}
+
+--- 3. o Deployment nao completa o rollout ---
+orion-web   3     3     <none>   3
+Available=False (MinimumReplicasUnavailable)
+Progressing=True (ReplicaSetUpdated)
+
+--- 4. eventos: a mensagem do registry ---
+Warning   Failed              orion-web-556748f4f8-fqtnb        Error: ImagePullBackOff
+Normal    BackOff             orion-web-556748f4f8-6dxbk        Back-off pulling image "fabricioveronez/fake-shop:v1.14.2"
+Warning   Failed              orion-web-556748f4f8-6dxbk        Error: ImagePullBackOff
+Normal    BackOff             orion-web-556748f4f8-fqtnb        Back-off pulling image "fabricioveronez/fake-shop:v1.14.2"
+Warning   Failed              orion-web-556748f4f8-ww7km        Error: ImagePullBackOff
+Normal    BackOff             orion-web-556748f4f8-ww7km        Back-off pulling image "fabricioveronez/fake-shop:v1.14.2"
+
+--- 5. imagem declarada ---
+fabricioveronez/fake-shop:v1.14.2
+
+--- 6. o banco ao lado esta de pe? ---
+orion-postgres-5797459b75-pkdz4   true

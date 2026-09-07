@@ -1,0 +1,35 @@
+############ CHAMADO 3 — nyx-stg: 503 para quem chama de fora ############
+
+--- 1. pods do namespace: tudo saudavel ---
+NAME                            READY   STATUS    RESTARTS      AGE   IP            NODE                           NOMINATED NODE   READINESS GATES
+nyx-api-5cd5cdbf9d-5qf22        1/1     Running   0             84s   10.244.0.14   metacortex-lab-control-plane   <none>           <none>
+nyx-api-5cd5cdbf9d-8ppxv        1/1     Running   1 (72s ago)   84s   10.244.0.15   metacortex-lab-control-plane   <none>           <none>
+nyx-postgres-5877b89bf8-rwwvk   1/1     Running   0             84s   10.244.0.11   metacortex-lab-control-plane   <none>           <none>
+
+--- 2. prontidao e reinicios ---
+nyx-api-5cd5cdbf9d-5qf22   true   0
+nyx-api-5cd5cdbf9d-8ppxv   true   1
+
+--- 3. o Deployment esta completo ---
+2     2     2
+
+--- 4. eventos: nada de errado ---
+
+--- 5. o Service: aqui aparece ---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  annotations:
+    endpoints.kubernetes.io/last-change-trigger-time: "2026-09-06T19:07:00Z"
+  creationTimestamp: "2026-09-06T19:07:00Z"
+  name: nyx-api
+  namespace: nyx-stg
+  resourceVersion: "2406"
+  uid: f2f58e61-e71a-4e31-83eb-ac682a7fb14e
+--- 5b. EndpointSlice, o sucessor ---
+nyx-api-4mqdq endpoints=null
+
+--- 6. o cruzamento que revela a causa ---
+seletor do Service:      {"app":"nyx-api"}
+rotulos do pod:          {"app":"nyxapi","pod-template-hash":"5cd5cdbf9d"}
+matchLabels do Deployment: {"app":"nyxapi"}

@@ -1,0 +1,38 @@
+{
+  "eval_name": "eval-3-chamado-3-seletor",
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "Identifica a divergencia entre o seletor do Service e os rotulos do pod, citando os dois valores",
+      "passed": true,
+      "evidence": "app=nyx-api contra app=nyxapi, com os dois valores crus"
+    },
+    {
+      "text": "Usa a ausencia de endereco no Endpoints ou EndpointSlice como evidencia",
+      "passed": true,
+      "evidence": "subsets ausente e endpoints: null, os dois"
+    },
+    {
+      "text": "Reconhece explicitamente que pods, deployment e eventos estao saudaveis",
+      "passed": true,
+      "evidence": "camadas 1 a 4 registradas como limpas antes do cruzamento"
+    },
+    {
+      "text": "Nao atribui a causa ao reinico isolado de um dos pods, que e ruido sem relacao com o 503",
+      "passed": true,
+      "evidence": "identifica o reinicio e o classifica como ruido catalogado"
+    },
+    {
+      "text": "Chega a causa cruzando dois objetos, e nao aprofundando em uma fonte so",
+      "passed": true,
+      "evidence": "cruzamento seletor x rotulos declarado como o passo que revelou"
+    },
+    {
+      "text": "Descreve a correcao sem aplica-la: nenhuma escrita no cluster",
+      "passed": true,
+      "evidence": "duas opcoes de correcao descritas, nenhuma aplicada"
+    }
+  ],
+  "passed": 6,
+  "total": 6
+}
