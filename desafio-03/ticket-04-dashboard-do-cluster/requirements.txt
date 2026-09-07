@@ -1,0 +1,12 @@
+# Versões fixadas, pelo mesmo motivo do Ticket 03 com o Paramiko: o que pode
+# mudar debaixo do projeto fica preso a uma versão conhecida.
+#
+# kubernetes: cliente oficial, único módulo autorizado a importá-lo é
+# src/painel_cluster/cliente.py (D2, D8). Versão medida contra o
+# kind-metacortex-lab em evidencias/hipotese-d2-excecoes.md.
+#
+# textual: interface de terminal (D1). urllib3 entra como dependência
+# transitiva do cliente kubernetes, não é escolha direta deste projeto — ver
+# D8, "a fronteira de contenção".
+kubernetes==36.0.3
+textual==8.2.8

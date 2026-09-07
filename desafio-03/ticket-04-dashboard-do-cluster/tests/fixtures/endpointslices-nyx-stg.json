@@ -1,0 +1,153 @@
+{
+  "apiVersion": "discovery.k8s.io/v1",
+  "items": [
+    {
+      "addressType": "IPv4",
+      "endpoints": null,
+      "metadata": {
+        "annotations": {
+          "endpoints.kubernetes.io/last-change-trigger-time": "2026-09-06T19:07:00Z"
+        },
+        "creationTimestamp": "2026-09-06T19:07:00Z",
+        "generateName": "nyx-api-",
+        "generation": 1,
+        "labels": {
+          "endpointslice.kubernetes.io/managed-by": "endpointslice-controller.k8s.io",
+          "kubernetes.io/service-name": "nyx-api"
+        },
+        "managedFields": [
+          {
+            "apiVersion": "discovery.k8s.io/v1",
+            "fieldsType": "FieldsV1",
+            "fieldsV1": {
+              "f:addressType": {},
+              "f:metadata": {
+                "f:annotations": {
+                  ".": {},
+                  "f:endpoints.kubernetes.io/last-change-trigger-time": {}
+                },
+                "f:generateName": {},
+                "f:labels": {
+                  ".": {},
+                  "f:endpointslice.kubernetes.io/managed-by": {},
+                  "f:kubernetes.io/service-name": {}
+                },
+                "f:ownerReferences": {
+                  ".": {},
+                  "k:{\"uid\":\"d9ca16be-a03b-4f3c-9fc9-345a220594a5\"}": {}
+                }
+              }
+            },
+            "manager": "kube-controller-manager",
+            "operation": "Update",
+            "time": "2026-09-06T19:07:00Z"
+          }
+        ],
+        "name": "nyx-api-4mqdq",
+        "namespace": "nyx-stg",
+        "ownerReferences": [
+          {
+            "apiVersion": "v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "Service",
+            "name": "nyx-api",
+            "uid": "d9ca16be-a03b-4f3c-9fc9-345a220594a5"
+          }
+        ],
+        "resourceVersion": "2404",
+        "uid": "819e11fe-d16e-4260-be28-ffb1fa24d30c"
+      },
+      "ports": null
+    },
+    {
+      "addressType": "IPv4",
+      "endpoints": [
+        {
+          "addresses": [
+            "10.244.0.11"
+          ],
+          "conditions": {
+            "ready": true,
+            "serving": true,
+            "terminating": false
+          },
+          "nodeName": "metacortex-lab-control-plane",
+          "targetRef": {
+            "kind": "Pod",
+            "name": "nyx-postgres-5877b89bf8-rwwvk",
+            "namespace": "nyx-stg",
+            "uid": "ab07daf0-55ff-4595-ae58-ac4eb35aecee"
+          }
+        }
+      ],
+      "metadata": {
+        "annotations": {
+          "endpoints.kubernetes.io/last-change-trigger-time": "2026-09-06T19:07:12Z"
+        },
+        "creationTimestamp": "2026-09-06T19:07:00Z",
+        "generateName": "nyx-postgres-",
+        "generation": 2,
+        "labels": {
+          "endpointslice.kubernetes.io/managed-by": "endpointslice-controller.k8s.io",
+          "kubernetes.io/service-name": "nyx-postgres"
+        },
+        "managedFields": [
+          {
+            "apiVersion": "discovery.k8s.io/v1",
+            "fieldsType": "FieldsV1",
+            "fieldsV1": {
+              "f:addressType": {},
+              "f:endpoints": {},
+              "f:metadata": {
+                "f:annotations": {
+                  ".": {},
+                  "f:endpoints.kubernetes.io/last-change-trigger-time": {}
+                },
+                "f:generateName": {},
+                "f:labels": {
+                  ".": {},
+                  "f:endpointslice.kubernetes.io/managed-by": {},
+                  "f:kubernetes.io/service-name": {}
+                },
+                "f:ownerReferences": {
+                  ".": {},
+                  "k:{\"uid\":\"81fbe29e-6d3a-4e08-ab66-6dd645990b38\"}": {}
+                }
+              },
+              "f:ports": {}
+            },
+            "manager": "kube-controller-manager",
+            "operation": "Update",
+            "time": "2026-09-06T19:07:12Z"
+          }
+        ],
+        "name": "nyx-postgres-kqc9f",
+        "namespace": "nyx-stg",
+        "ownerReferences": [
+          {
+            "apiVersion": "v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "Service",
+            "name": "nyx-postgres",
+            "uid": "81fbe29e-6d3a-4e08-ab66-6dd645990b38"
+          }
+        ],
+        "resourceVersion": "2480",
+        "uid": "8e6d391d-7382-41c6-afb8-7ef089c7a4bc"
+      },
+      "ports": [
+        {
+          "name": "",
+          "port": 5432,
+          "protocol": "TCP"
+        }
+      ]
+    }
+  ],
+  "kind": "EndpointSliceList",
+  "metadata": {
+    "resourceVersion": "58700"
+  }
+}

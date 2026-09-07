@@ -1,0 +1,119 @@
+{
+  "apiVersion": "v1",
+  "items": [
+    {
+      "count": 3172,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-06T19:07:16Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{api}",
+        "kind": "Pod",
+        "name": "nyx-api-79c5f4d8d7-2w5kd",
+        "namespace": "nyx-prod",
+        "resourceVersion": "2312",
+        "uid": "4d591fb9-db02-4b15-a96f-8734e99a7d34"
+      },
+      "lastTimestamp": "2026-09-07T06:32:03Z",
+      "message": "Back-off restarting failed container api in pod nyx-api-79c5f4d8d7-2w5kd_nyx-prod(4d591fb9-db02-4b15-a96f-8734e99a7d34)",
+      "metadata": {
+        "creationTimestamp": "2026-09-06T19:07:16Z",
+        "managedFields": [
+          {
+            "apiVersion": "v1",
+            "fieldsType": "FieldsV1",
+            "fieldsV1": {
+              "f:count": {},
+              "f:firstTimestamp": {},
+              "f:involvedObject": {},
+              "f:lastTimestamp": {},
+              "f:message": {},
+              "f:reason": {},
+              "f:reportingComponent": {},
+              "f:reportingInstance": {},
+              "f:source": {
+                "f:component": {},
+                "f:host": {}
+              },
+              "f:type": {}
+            },
+            "manager": "kubelet",
+            "operation": "Update",
+            "time": "2026-09-07T06:32:03Z"
+          }
+        ],
+        "name": "nyx-api-79c5f4d8d7-2w5kd.18d2d0d9e83b0721",
+        "namespace": "nyx-prod",
+        "resourceVersion": "58665",
+        "uid": "320e8ee3-0a00-41df-9aa0-49d717332896"
+      },
+      "reason": "BackOff",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "metacortex-lab-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "metacortex-lab-control-plane"
+      },
+      "type": "Warning"
+    },
+    {
+      "count": 3163,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-06T19:07:15Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{api}",
+        "kind": "Pod",
+        "name": "nyx-api-79c5f4d8d7-hkw2t",
+        "namespace": "nyx-prod",
+        "resourceVersion": "2315",
+        "uid": "fff2c8b6-71e2-4ae4-ae6d-00fb8464c611"
+      },
+      "lastTimestamp": "2026-09-07T06:32:07Z",
+      "message": "Back-off restarting failed container api in pod nyx-api-79c5f4d8d7-hkw2t_nyx-prod(fff2c8b6-71e2-4ae4-ae6d-00fb8464c611)",
+      "metadata": {
+        "creationTimestamp": "2026-09-06T19:07:15Z",
+        "managedFields": [
+          {
+            "apiVersion": "v1",
+            "fieldsType": "FieldsV1",
+            "fieldsV1": {
+              "f:count": {},
+              "f:firstTimestamp": {},
+              "f:involvedObject": {},
+              "f:lastTimestamp": {},
+              "f:message": {},
+              "f:reason": {},
+              "f:reportingComponent": {},
+              "f:reportingInstance": {},
+              "f:source": {
+                "f:component": {},
+                "f:host": {}
+              },
+              "f:type": {}
+            },
+            "manager": "kubelet",
+            "operation": "Update",
+            "time": "2026-09-07T06:32:07Z"
+          }
+        ],
+        "name": "nyx-api-79c5f4d8d7-hkw2t.18d2d0d9ac597174",
+        "namespace": "nyx-prod",
+        "resourceVersion": "58673",
+        "uid": "97227307-7eda-417e-95ac-53ec2275461c"
+      },
+      "reason": "BackOff",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "metacortex-lab-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "metacortex-lab-control-plane"
+      },
+      "type": "Warning"
+    }
+  ],
+  "kind": "EventList",
+  "metadata": {
+    "resourceVersion": "58700"
+  }
+}

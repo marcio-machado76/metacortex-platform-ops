@@ -1,0 +1,90 @@
+{
+  "apiVersion": "v1",
+  "items": [
+    {
+      "metadata": {
+        "annotations": {
+          "endpoints.kubernetes.io/last-change-trigger-time": "2026-09-06T19:07:00Z"
+        },
+        "creationTimestamp": "2026-09-06T19:07:00Z",
+        "managedFields": [
+          {
+            "apiVersion": "v1",
+            "fieldsType": "FieldsV1",
+            "fieldsV1": {
+              "f:metadata": {
+                "f:annotations": {
+                  ".": {},
+                  "f:endpoints.kubernetes.io/last-change-trigger-time": {}
+                }
+              }
+            },
+            "manager": "kube-controller-manager",
+            "operation": "Update",
+            "time": "2026-09-06T19:07:00Z"
+          }
+        ],
+        "name": "nyx-api",
+        "namespace": "nyx-stg",
+        "resourceVersion": "2406",
+        "uid": "f2f58e61-e71a-4e31-83eb-ac682a7fb14e"
+      }
+    },
+    {
+      "metadata": {
+        "annotations": {
+          "endpoints.kubernetes.io/last-change-trigger-time": "2026-09-06T19:07:12Z"
+        },
+        "creationTimestamp": "2026-09-06T19:07:00Z",
+        "managedFields": [
+          {
+            "apiVersion": "v1",
+            "fieldsType": "FieldsV1",
+            "fieldsV1": {
+              "f:metadata": {
+                "f:annotations": {
+                  ".": {},
+                  "f:endpoints.kubernetes.io/last-change-trigger-time": {}
+                }
+              },
+              "f:subsets": {}
+            },
+            "manager": "kube-controller-manager",
+            "operation": "Update",
+            "time": "2026-09-06T19:07:12Z"
+          }
+        ],
+        "name": "nyx-postgres",
+        "namespace": "nyx-stg",
+        "resourceVersion": "2481",
+        "uid": "40355be9-50d5-4286-85b7-7c38da5fb416"
+      },
+      "subsets": [
+        {
+          "addresses": [
+            {
+              "ip": "10.244.0.11",
+              "nodeName": "metacortex-lab-control-plane",
+              "targetRef": {
+                "kind": "Pod",
+                "name": "nyx-postgres-5877b89bf8-rwwvk",
+                "namespace": "nyx-stg",
+                "uid": "ab07daf0-55ff-4595-ae58-ac4eb35aecee"
+              }
+            }
+          ],
+          "ports": [
+            {
+              "port": 5432,
+              "protocol": "TCP"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "kind": "EndpointsList",
+  "metadata": {
+    "resourceVersion": "58700"
+  }
+}

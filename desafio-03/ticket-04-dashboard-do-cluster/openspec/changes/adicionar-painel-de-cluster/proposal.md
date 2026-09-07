@@ -21,8 +21,13 @@ decisões técnicas já foram tomadas e medidas contra ele, em `docs/00-brainsto
 - Leitura da API pelo cliente oficial `kubernetes` com `_preload_content=False`,
   confinada a um **único módulo** — nenhum outro importa `kubernetes` nem
   `urllib3`.
-- Seis tipos de recurso lidos por `LIST`, cada um num **envelope independente** com
-  quatro estados possíveis: `ok`, `vazio`, `negado`, `indisponível`.
+- Sete tipos de recurso lidos por `LIST`, cada um num **envelope independente** com
+  quatro estados possíveis: `ok`, `vazio`, `negado`, `indisponível`. São seis no
+  escopo do namespace selecionado mais os namespaces, que é a única leitura de
+  escopo de cluster — e que passa pelo mesmo envelope que os outros.
+  <!-- Corrigido durante a implementação: a primeira versão dizia "seis tipos" e
+       esquecia que a lista de namespaces também é lida por LIST e também precisa
+       de envelope. A spec e as tarefas já diziam sete. -->
 - Tela com lista de namespaces, painéis de pods, controladores, services e eventos,
   filtro por namespace, busca por nome e ordenação por anormalidade **com o critério
   visível**.
@@ -40,7 +45,7 @@ Não é mudança incompatível: o projeto não existia.
 ### New Capabilities
 
 - `leitura-do-cluster`: a fronteira com o apiserver — resolução do contexto
-  corrente, leitura somente-leitura dos seis tipos, o envelope de quatro estados
+  corrente, leitura somente-leitura dos sete tipos, o envelope de quatro estados
   por tipo, a classificação dos três ambientes hostis por tipo de exceção, e a
   normalização de campo ausente, nulo e vazio.
 - `retrato-do-namespace`: o modelo exibível derivado do que foi lido — estado de

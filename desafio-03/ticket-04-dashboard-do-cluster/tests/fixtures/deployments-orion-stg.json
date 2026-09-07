@@ -1,0 +1,488 @@
+{
+  "apiVersion": "apps/v1",
+  "items": [
+    {
+      "metadata": {
+        "annotations": {
+          "deployment.kubernetes.io/revision": "1",
+          "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"annotations\":{},\"name\":\"orion-postgres\",\"namespace\":\"orion-stg\"},\"spec\":{\"replicas\":1,\"selector\":{\"matchLabels\":{\"app\":\"orion-postgres\"}},\"template\":{\"metadata\":{\"labels\":{\"app\":\"orion-postgres\"}},\"spec\":{\"containers\":[{\"env\":[{\"name\":\"POSTGRES_DB\",\"value\":\"ecommerce\"},{\"name\":\"POSTGRES_USER\",\"value\":\"ecommerce\"},{\"name\":\"POSTGRES_PASSWORD\",\"value\":\"Pg1234\"}],\"image\":\"postgres:16-alpine\",\"name\":\"postgres\",\"ports\":[{\"containerPort\":5432}]}]}}}}\n"
+        },
+        "creationTimestamp": "2026-09-06T19:07:00Z",
+        "generation": 1,
+        "managedFields": [
+          {
+            "apiVersion": "apps/v1",
+            "fieldsType": "FieldsV1",
+            "fieldsV1": {
+              "f:metadata": {
+                "f:annotations": {
+                  ".": {},
+                  "f:kubectl.kubernetes.io/last-applied-configuration": {}
+                }
+              },
+              "f:spec": {
+                "f:progressDeadlineSeconds": {},
+                "f:replicas": {},
+                "f:revisionHistoryLimit": {},
+                "f:selector": {},
+                "f:strategy": {
+                  "f:rollingUpdate": {
+                    ".": {},
+                    "f:maxSurge": {},
+                    "f:maxUnavailable": {}
+                  },
+                  "f:type": {}
+                },
+                "f:template": {
+                  "f:metadata": {
+                    "f:labels": {
+                      ".": {},
+                      "f:app": {}
+                    }
+                  },
+                  "f:spec": {
+                    "f:containers": {
+                      "k:{\"name\":\"postgres\"}": {
+                        ".": {},
+                        "f:env": {
+                          ".": {},
+                          "k:{\"name\":\"POSTGRES_DB\"}": {
+                            ".": {},
+                            "f:name": {},
+                            "f:value": {}
+                          },
+                          "k:{\"name\":\"POSTGRES_PASSWORD\"}": {
+                            ".": {},
+                            "f:name": {},
+                            "f:value": {}
+                          },
+                          "k:{\"name\":\"POSTGRES_USER\"}": {
+                            ".": {},
+                            "f:name": {},
+                            "f:value": {}
+                          }
+                        },
+                        "f:image": {},
+                        "f:imagePullPolicy": {},
+                        "f:name": {},
+                        "f:ports": {
+                          ".": {},
+                          "k:{\"containerPort\":5432,\"protocol\":\"TCP\"}": {
+                            ".": {},
+                            "f:containerPort": {},
+                            "f:protocol": {}
+                          }
+                        },
+                        "f:resources": {},
+                        "f:terminationMessagePath": {},
+                        "f:terminationMessagePolicy": {}
+                      }
+                    },
+                    "f:dnsPolicy": {},
+                    "f:restartPolicy": {},
+                    "f:schedulerName": {},
+                    "f:securityContext": {},
+                    "f:terminationGracePeriodSeconds": {}
+                  }
+                }
+              }
+            },
+            "manager": "kubectl-client-side-apply",
+            "operation": "Update",
+            "time": "2026-09-06T19:07:00Z"
+          },
+          {
+            "apiVersion": "apps/v1",
+            "fieldsType": "FieldsV1",
+            "fieldsV1": {
+              "f:metadata": {
+                "f:annotations": {
+                  "f:deployment.kubernetes.io/revision": {}
+                }
+              },
+              "f:status": {
+                "f:availableReplicas": {},
+                "f:conditions": {
+                  ".": {},
+                  "k:{\"type\":\"Available\"}": {
+                    ".": {},
+                    "f:lastTransitionTime": {},
+                    "f:lastUpdateTime": {},
+                    "f:message": {},
+                    "f:reason": {},
+                    "f:status": {},
+                    "f:type": {}
+                  },
+                  "k:{\"type\":\"Progressing\"}": {
+                    ".": {},
+                    "f:lastTransitionTime": {},
+                    "f:lastUpdateTime": {},
+                    "f:message": {},
+                    "f:reason": {},
+                    "f:status": {},
+                    "f:type": {}
+                  }
+                },
+                "f:observedGeneration": {},
+                "f:readyReplicas": {},
+                "f:replicas": {},
+                "f:updatedReplicas": {}
+              }
+            },
+            "manager": "kube-controller-manager",
+            "operation": "Update",
+            "subresource": "status",
+            "time": "2026-09-06T19:07:11Z"
+          }
+        ],
+        "name": "orion-postgres",
+        "namespace": "orion-stg",
+        "resourceVersion": "2472",
+        "uid": "9a7733ed-0424-4474-bd09-f4b0821161eb"
+      },
+      "spec": {
+        "progressDeadlineSeconds": 600,
+        "replicas": 1,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "app": "orion-postgres"
+          }
+        },
+        "strategy": {
+          "rollingUpdate": {
+            "maxSurge": "25%",
+            "maxUnavailable": "25%"
+          },
+          "type": "RollingUpdate"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "app": "orion-postgres"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "env": [
+                  {
+                    "name": "POSTGRES_DB",
+                    "value": "ecommerce"
+                  },
+                  {
+                    "name": "POSTGRES_USER",
+                    "value": "ecommerce"
+                  },
+                  {
+                    "name": "POSTGRES_PASSWORD",
+                    "value": "Pg1234"
+                  }
+                ],
+                "image": "postgres:16-alpine",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "postgres",
+                "ports": [
+                  {
+                    "containerPort": 5432,
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {},
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+              }
+            ],
+            "dnsPolicy": "ClusterFirst",
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {},
+            "terminationGracePeriodSeconds": 30
+          }
+        }
+      },
+      "status": {
+        "availableReplicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-09-06T19:07:11Z",
+            "lastUpdateTime": "2026-09-06T19:07:11Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-09-06T19:07:00Z",
+            "lastUpdateTime": "2026-09-06T19:07:11Z",
+            "message": "ReplicaSet \"orion-postgres-5797459b75\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          }
+        ],
+        "observedGeneration": 1,
+        "readyReplicas": 1,
+        "replicas": 1,
+        "updatedReplicas": 1
+      }
+    },
+    {
+      "metadata": {
+        "annotations": {
+          "deployment.kubernetes.io/revision": "1",
+          "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"annotations\":{},\"name\":\"orion-web\",\"namespace\":\"orion-stg\"},\"spec\":{\"replicas\":3,\"selector\":{\"matchLabels\":{\"app\":\"orion-web\"}},\"template\":{\"metadata\":{\"labels\":{\"app\":\"orion-web\"}},\"spec\":{\"containers\":[{\"env\":[{\"name\":\"DB_HOST\",\"value\":\"orion-postgres\"},{\"name\":\"DB_NAME\",\"value\":\"ecommerce\"},{\"name\":\"DB_USER\",\"value\":\"ecommerce\"},{\"name\":\"DB_PASSWORD\",\"value\":\"Pg1234\"},{\"name\":\"FLASK_APP\",\"value\":\"index.py\"},{\"name\":\"PROMETHEUS_MULTIPROC_DIR\",\"value\":\"/tmp/metrics\"}],\"image\":\"fabricioveronez/fake-shop:v1.14.2\",\"name\":\"web\",\"ports\":[{\"containerPort\":5000}]}]}}}}\n"
+        },
+        "creationTimestamp": "2026-09-06T19:07:00Z",
+        "generation": 1,
+        "managedFields": [
+          {
+            "apiVersion": "apps/v1",
+            "fieldsType": "FieldsV1",
+            "fieldsV1": {
+              "f:metadata": {
+                "f:annotations": {
+                  ".": {},
+                  "f:kubectl.kubernetes.io/last-applied-configuration": {}
+                }
+              },
+              "f:spec": {
+                "f:progressDeadlineSeconds": {},
+                "f:replicas": {},
+                "f:revisionHistoryLimit": {},
+                "f:selector": {},
+                "f:strategy": {
+                  "f:rollingUpdate": {
+                    ".": {},
+                    "f:maxSurge": {},
+                    "f:maxUnavailable": {}
+                  },
+                  "f:type": {}
+                },
+                "f:template": {
+                  "f:metadata": {
+                    "f:labels": {
+                      ".": {},
+                      "f:app": {}
+                    }
+                  },
+                  "f:spec": {
+                    "f:containers": {
+                      "k:{\"name\":\"web\"}": {
+                        ".": {},
+                        "f:env": {
+                          ".": {},
+                          "k:{\"name\":\"DB_HOST\"}": {
+                            ".": {},
+                            "f:name": {},
+                            "f:value": {}
+                          },
+                          "k:{\"name\":\"DB_NAME\"}": {
+                            ".": {},
+                            "f:name": {},
+                            "f:value": {}
+                          },
+                          "k:{\"name\":\"DB_PASSWORD\"}": {
+                            ".": {},
+                            "f:name": {},
+                            "f:value": {}
+                          },
+                          "k:{\"name\":\"DB_USER\"}": {
+                            ".": {},
+                            "f:name": {},
+                            "f:value": {}
+                          },
+                          "k:{\"name\":\"FLASK_APP\"}": {
+                            ".": {},
+                            "f:name": {},
+                            "f:value": {}
+                          },
+                          "k:{\"name\":\"PROMETHEUS_MULTIPROC_DIR\"}": {
+                            ".": {},
+                            "f:name": {},
+                            "f:value": {}
+                          }
+                        },
+                        "f:image": {},
+                        "f:imagePullPolicy": {},
+                        "f:name": {},
+                        "f:ports": {
+                          ".": {},
+                          "k:{\"containerPort\":5000,\"protocol\":\"TCP\"}": {
+                            ".": {},
+                            "f:containerPort": {},
+                            "f:protocol": {}
+                          }
+                        },
+                        "f:resources": {},
+                        "f:terminationMessagePath": {},
+                        "f:terminationMessagePolicy": {}
+                      }
+                    },
+                    "f:dnsPolicy": {},
+                    "f:restartPolicy": {},
+                    "f:schedulerName": {},
+                    "f:securityContext": {},
+                    "f:terminationGracePeriodSeconds": {}
+                  }
+                }
+              }
+            },
+            "manager": "kubectl-client-side-apply",
+            "operation": "Update",
+            "time": "2026-09-06T19:07:00Z"
+          },
+          {
+            "apiVersion": "apps/v1",
+            "fieldsType": "FieldsV1",
+            "fieldsV1": {
+              "f:metadata": {
+                "f:annotations": {
+                  "f:deployment.kubernetes.io/revision": {}
+                }
+              },
+              "f:status": {
+                "f:conditions": {
+                  ".": {},
+                  "k:{\"type\":\"Available\"}": {
+                    ".": {},
+                    "f:lastTransitionTime": {},
+                    "f:lastUpdateTime": {},
+                    "f:message": {},
+                    "f:reason": {},
+                    "f:status": {},
+                    "f:type": {}
+                  },
+                  "k:{\"type\":\"Progressing\"}": {
+                    ".": {},
+                    "f:lastTransitionTime": {},
+                    "f:lastUpdateTime": {},
+                    "f:message": {},
+                    "f:reason": {},
+                    "f:status": {},
+                    "f:type": {}
+                  }
+                },
+                "f:observedGeneration": {},
+                "f:replicas": {},
+                "f:unavailableReplicas": {},
+                "f:updatedReplicas": {}
+              }
+            },
+            "manager": "kube-controller-manager",
+            "operation": "Update",
+            "subresource": "status",
+            "time": "2026-09-06T19:17:01Z"
+          }
+        ],
+        "name": "orion-web",
+        "namespace": "orion-stg",
+        "resourceVersion": "3457",
+        "uid": "cc187d13-075e-4f4f-b070-860763776945"
+      },
+      "spec": {
+        "progressDeadlineSeconds": 600,
+        "replicas": 3,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "app": "orion-web"
+          }
+        },
+        "strategy": {
+          "rollingUpdate": {
+            "maxSurge": "25%",
+            "maxUnavailable": "25%"
+          },
+          "type": "RollingUpdate"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "app": "orion-web"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "env": [
+                  {
+                    "name": "DB_HOST",
+                    "value": "orion-postgres"
+                  },
+                  {
+                    "name": "DB_NAME",
+                    "value": "ecommerce"
+                  },
+                  {
+                    "name": "DB_USER",
+                    "value": "ecommerce"
+                  },
+                  {
+                    "name": "DB_PASSWORD",
+                    "value": "Pg1234"
+                  },
+                  {
+                    "name": "FLASK_APP",
+                    "value": "index.py"
+                  },
+                  {
+                    "name": "PROMETHEUS_MULTIPROC_DIR",
+                    "value": "/tmp/metrics"
+                  }
+                ],
+                "image": "fabricioveronez/fake-shop:v1.14.2",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "web",
+                "ports": [
+                  {
+                    "containerPort": 5000,
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {},
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+              }
+            ],
+            "dnsPolicy": "ClusterFirst",
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {},
+            "terminationGracePeriodSeconds": 30
+          }
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-09-06T19:07:00Z",
+            "lastUpdateTime": "2026-09-06T19:07:00Z",
+            "message": "Deployment does not have minimum availability.",
+            "reason": "MinimumReplicasUnavailable",
+            "status": "False",
+            "type": "Available"
+          },
+          {
+            "lastTransitionTime": "2026-09-06T19:17:01Z",
+            "lastUpdateTime": "2026-09-06T19:17:01Z",
+            "message": "ReplicaSet \"orion-web-556748f4f8\" has timed out progressing.",
+            "reason": "ProgressDeadlineExceeded",
+            "status": "False",
+            "type": "Progressing"
+          }
+        ],
+        "observedGeneration": 1,
+        "replicas": 3,
+        "unavailableReplicas": 3,
+        "updatedReplicas": 3
+      }
+    }
+  ],
+  "kind": "DeploymentList",
+  "metadata": {
+    "resourceVersion": "58700"
+  }
+}

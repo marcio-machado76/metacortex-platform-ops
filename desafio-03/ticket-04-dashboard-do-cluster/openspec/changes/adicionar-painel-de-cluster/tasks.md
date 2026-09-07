@@ -1,28 +1,28 @@
 ## 1. Estrutura e dependências
 
-- [ ] 1.1 Criar `src/painel_cluster/` com os módulos vazios `cliente.py`, `modelo.py`, `tela.py` e `cli.py`, e verificar que `python -c "import painel_cluster"` funciona a partir de `src/`
-- [ ] 1.2 Escrever `requirements.txt` com `kubernetes` e `textual` em versão fixada, e verificar que `pip install -r requirements.txt` numa venv limpa instala sem conflito
-- [ ] 1.3 Escrever `pytest.ini` marcando `tests/` e verificar que `pytest --collect-only` roda sem erro de coleta
+- [x] 1.1 Criar `src/painel_cluster/` com os módulos vazios `cliente.py`, `modelo.py`, `tela.py` e `cli.py`, e verificar que `python -c "import painel_cluster"` funciona a partir de `src/`
+- [x] 1.2 Escrever `requirements.txt` com `kubernetes` e `textual` em versão fixada, e verificar que `pip install -r requirements.txt` numa venv limpa instala sem conflito
+- [x] 1.3 Escrever `pytest.ini` marcando `tests/` e verificar que `pytest --collect-only` roda sem erro de coleta
 
 ## 2. Fixtures capturadas do cluster real
 
-- [ ] 2.1 Capturar o JSON cru do pod `nyx-api` do `nyx-prod` e verificar que a fixture contém `state.waiting.reason` igual a `CrashLoopBackOff` e `lastState.terminated.reason` igual a `OOMKilled`
-- [ ] 2.2 Capturar o Deployment `orion-web` do `orion-stg` e verificar que a chave `readyReplicas` **não** existe no status da fixture
-- [ ] 2.3 Capturar o StatefulSet `nyx-postgres` do `nyx-dev` e verificar que a chave `conditions` **não** existe no status da fixture
-- [ ] 2.4 Capturar o `Endpoints` e a `EndpointSlice` do Service `nyx-api` do `nyx-stg` e verificar que na primeira a chave `subsets` está ausente e na segunda `endpoints` está presente com valor nulo
-- [ ] 2.5 Capturar eventos do `nyx-prod` pela API `core/v1` e verificar que a fixture tem `count` e `lastTimestamp` preenchidos
-- [ ] 2.6 Capturar o Deployment `nyx-api` do `nyx-dev` e o `orion-web` do `orion-prod` como amostras saudáveis de uma e de duas réplicas, e verificar que as duas têm `readyReplicas` presente
-- [ ] 2.7 Registrar em `tests/fixtures/README.md` o comando que reproduz cada captura, e verificar que rodar os comandos contra o cluster produz JSON com a mesma forma
+- [x] 2.1 Capturar o JSON cru do pod `nyx-api` do `nyx-prod` e verificar que a fixture contém `state.waiting.reason` igual a `CrashLoopBackOff` e `lastState.terminated.reason` igual a `OOMKilled`
+- [x] 2.2 Capturar o Deployment `orion-web` do `orion-stg` e verificar que a chave `readyReplicas` **não** existe no status da fixture
+- [x] 2.3 Capturar o StatefulSet `nyx-postgres` do `nyx-dev` e verificar que a chave `conditions` **não** existe no status da fixture
+- [x] 2.4 Capturar o `Endpoints` e a `EndpointSlice` do Service `nyx-api` do `nyx-stg` e verificar que na primeira a chave `subsets` está ausente e na segunda `endpoints` está presente com valor nulo
+- [x] 2.5 Capturar eventos do `nyx-prod` pela API `core/v1` e verificar que a fixture tem `count` e `lastTimestamp` preenchidos
+- [x] 2.6 Capturar o Deployment `nyx-api` do `nyx-dev` e o `orion-web` do `orion-prod` como amostras saudáveis de uma e de duas réplicas, e verificar que as duas têm `readyReplicas` presente
+- [x] 2.7 Registrar em `tests/fixtures/README.md` o comando que reproduz cada captura, e verificar que rodar os comandos contra o cluster produz JSON com a mesma forma
 
 ## 3. Fronteira de leitura
 
-- [ ] 3.1 Implementar em `cliente.py` a resolução do contexto corrente e a exposição de nome de contexto e endereço do servidor, e verificar com teste que o contexto lido é o corrente do kubeconfig de teste
-- [ ] 3.2 Implementar o tipo de envelope com os quatro estados e o motivo associado, e verificar com teste que os quatro são distinguíveis entre si
-- [ ] 3.3 Implementar a leitura dos sete tipos por `LIST`, devolvendo JSON cru dentro do envelope, e verificar com teste de transporte simulado que nenhuma interpretação acontece nesta camada
-- [ ] 3.4 Implementar o mapeamento de falha de autorização para envelope `negado` restrito ao tipo, e verificar com teste que os demais envelopes seguem `ok`
-- [ ] 3.5 Implementar o mapeamento de falha de autenticação para `indisponível` por credencial em todos os tipos, e verificar com teste que a mensagem não afirma que a credencial está expirada
-- [ ] 3.6 Implementar o mapeamento de falha de transporte para `indisponível` por cluster, e verificar com teste que a exceção da dependência transitiva é capturada aqui e não escapa
-- [ ] 3.7 Implementar o encerramento com código 2 quando não houver kubeconfig legível ou contexto corrente, e verificar com teste que nenhum rastreamento de pilha é impresso
+- [x] 3.1 Implementar em `cliente.py` a resolução do contexto corrente e a exposição de nome de contexto e endereço do servidor, e verificar com teste que o contexto lido é o corrente do kubeconfig de teste
+- [x] 3.2 Implementar o tipo de envelope com os quatro estados e o motivo associado, e verificar com teste que os quatro são distinguíveis entre si
+- [x] 3.3 Implementar a leitura dos sete tipos por `LIST`, devolvendo JSON cru dentro do envelope, e verificar com teste de transporte simulado que nenhuma interpretação acontece nesta camada
+- [x] 3.4 Implementar o mapeamento de falha de autorização para envelope `negado` restrito ao tipo, e verificar com teste que os demais envelopes seguem `ok`
+- [x] 3.5 Implementar o mapeamento de falha de autenticação para `indisponível` por credencial em todos os tipos, e verificar com teste que a mensagem não afirma que a credencial está expirada
+- [x] 3.6 Implementar o mapeamento de falha de transporte para `indisponível` por cluster, e verificar com teste que a exceção da dependência transitiva é capturada aqui e não escapa
+- [x] 3.7 Implementar o encerramento com código 2 quando não houver kubeconfig legível ou contexto corrente, e verificar com teste que nenhum rastreamento de pilha é impresso
 
 ## 4. Interpretação — pods
 
@@ -66,8 +66,9 @@
 ## 8. Garantia de só-leitura e contenção
 
 - [ ] 8.1 Escrever o teste que falha se qualquer verbo de escrita aparecer no código, e verificar que ele falha quando um verbo de escrita é introduzido de propósito
-- [ ] 8.2 Escrever o teste que falha se qualquer módulo fora da fronteira importar o cliente ou o transporte, e verificar que ele falha quando o import é introduzido de propósito
+- [ ] 8.2 Escrever o teste que falha se qualquer módulo **de `src/`** fora da fronteira importar o cliente ou o transporte, e verificar que ele falha quando o import é introduzido de propósito. O teste da própria fronteira precisa importar os tipos de exceção para simular o transporte, e está fora da regra
 - [ ] 8.3 Escrever o teste que falha se a leitura deixar de preservar a distinção entre chave ausente e valor nulo, e verificar que ele falha com o modo de leitura alternativo
+- [ ] 8.5 Escrever o teste que cobre falha de apiserver que não é 401 nem 403 (por exemplo 5xx), e verificar que ela vira envelope `indisponível` com o status no motivo, em vez de escapar
 - [ ] 8.4 Verificar que a suíte inteira roda sem tocar a rede, com o transporte simulado, e registrar a contagem de testes
 
 ## 9. Empacotamento
