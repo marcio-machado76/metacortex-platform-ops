@@ -60,9 +60,17 @@ desligado e `PermitRootLogin no`.
 | `swap.habilitado` | critico | swapfile de 4G ativo |
 | `chaves_ssh.emitidas_por` | critico | segunda chave com comentario `dozer@laptop-pessoal` |
 | `portas_em_escuta.somente_rede_interna` | critico | `node_exporter` em `0.0.0.0:9100` |
-| `servicos.ativos` | alto | `containerd` e `chrony` ausentes |
+| `servicos.ativos` | alto | `containerd` nao instalado e `chrony` desligado |
 | `servicos.proibidos` | alto | `rpcbind.socket` ativo |
-| `kernel.versao_minima` | medio | Ubuntu 22.04 entrega kernel 5.15 |
+| `ntp.sincronizado` | medio | sincronizacao de tempo desligada |
+
+> **A AMI se moveu, e a descricao envelheceu junto.** A versao anterior deste
+> laboratorio contava com o Ubuntu 22.04 entregando kernel 5.15 (desvio medio) e
+> sem `chrony` instalado (desvio alto). A AMI atual da AWS entrega kernel 6.8, que
+> passa no minimo de 6.5, e ja traz `chrony` ativo — os dois desvios sumiram sem
+> que nada no codigo mudasse. Descoberto ao conferir o laboratorio antes da
+> validacao, e corrigido desligando a sincronizacao de tempo, que e o unico desvio
+> medio que resta sob nosso controle.
 
 Nos dois hosts a coleta entra com o usuario `roster`, **sem sudo**. E isso que
 produz o veredito `nao_verificado` em `ssh.login_de_root`, que exige ler a

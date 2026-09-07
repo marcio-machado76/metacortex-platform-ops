@@ -1,0 +1,1 @@
+erro: autenticação falhou para roster@3.92.162.67:22: a chave informada foi recusada pelo host

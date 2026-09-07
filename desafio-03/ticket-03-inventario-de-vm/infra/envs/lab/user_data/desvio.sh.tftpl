@@ -19,9 +19,17 @@ apt-get update
 apt-get install -y rpcbind
 systemctl enable --now rpcbind.socket
 
-# servicos.ativos (alto): containerd e chrony ficam ausentes de proposito.
-# O host segue com systemd-timesyncd, o que muda ntp.mecanismo mas mantem
-# ntp.sincronizado verdadeiro.
+# servicos.ativos (alto): containerd nao e instalado, e o chrony — que a AMI
+# da AWS ja traz ativo, ao contrario do que este arquivo supunha — e desligado.
+# ntp.sincronizado (medio): desligar a sincronizacao de tempo e o unico desvio
+# de severidade media disponivel. A outra regra media e kernel.versao_minima, e
+# a AMI atual do 22.04 entrega kernel 6.8, que passa no minimo de 6.5.
+systemctl disable --now chrony || true
+timedatectl set-ntp false || true
+# Desligar a sincronizacao nao derruba sozinha a marca NTPSynchronized: o systemd
+# a mantem ate reiniciar. Sem este reboot o host sai como sincronizado=true e o
+# desvio medio nao aparece. Descoberto conferindo o laboratorio antes da validacao.
+systemctl reboot --no-block || true
 
 # portas_em_escuta.somente_rede_interna (critico): 9100 exposto em 0.0.0.0
 NE_VERSAO=1.12.1
@@ -54,6 +62,8 @@ swapon /swapfile
 echo '/swapfile none swap sw 0 0' >> /etc/fstab
 
 # ssh.login_de_root: mantido no padrao da imagem Ubuntu (prohibit-password).
-# kernel.versao_minima (medio): o 22.04 entrega kernel 5.15, abaixo do minimo 6.5.
+# kernel.versao_minima: NAO e mais desvio. A AMI atual do 22.04 na AWS entrega
+# kernel 6.8, acima do minimo de 6.5 — este arquivo supunha 5.15, e a suposicao
+# envelheceu junto com a imagem.
 
 touch /var/lib/metacortex-preparado

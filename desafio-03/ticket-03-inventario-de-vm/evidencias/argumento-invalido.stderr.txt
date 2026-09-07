@@ -1,0 +1,5 @@
+usage: inventario-vm [-h] --host HOST --usuario USUARIO --chave CHAVE
+                     [--baseline BASELINE] [--formato {json,markdown,ambos}]
+                     [--saida SAIDA] [--porta PORTA] [--timeout TIMEOUT]
+                     [--aceitar-host-desconhecido]
+inventario-vm: erro: argument --formato: invalid choice: 'xml' (choose from 'json', 'markdown', 'ambos')
