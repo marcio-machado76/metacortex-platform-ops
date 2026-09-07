@@ -321,8 +321,16 @@ objeto por forma inesperada é uma tela em branco com outro nome.
 `readyReplicas` ausente **significa** zero pronto. É **"o control plane afirmou
 zero"** contra **"o control plane ainda não afirmou nada"**. Um Deployment criado
 há três segundos também não tem `readyReplicas`, e pintá-lo de degradado é tão
-falso quanto. Essa distinção se deriva de `observedGeneration`, das condições e da
-idade do objeto — **nunca da forma do JSON**.
+falso quanto. Essa distinção se deriva da comparação entre
+`status.observedGeneration` e `metadata.generation` — **nunca da forma do JSON**.
+
+**Corrigido durante a implementação.** A primeira redação desta decisão nomeava
+três sinais: geração observada, condições e idade. A implementação em contexto frio
+mostrou que dois deles não servem — condições não existem em StatefulSet, e nenhum
+documento fixou limiar de idade. O par de gerações é o único sinal presente nos dois
+controladores, e é o mesmo que o `kubectl rollout status` usa para responder à mesma
+pergunta. Nomear três quando só um é utilizável era sobre-especificação, e teria
+levado quem implementasse a inventar o limiar que faltava.
 
 **Custo aceito:** `or []` é fácil de esquecer numa linha nova. O antídoto é teste, e
 o motivo de acreditar que é preciso está registrado: **a armadilha foi cometida

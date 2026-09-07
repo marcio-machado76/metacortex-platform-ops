@@ -296,8 +296,12 @@ que não há sequer o que tentar.
    destaca e mostra o critério.
 4. **Ausência nunca vira erro nem afirmação falsa.** Campo ausente, nulo e vazio
    são normalizados na fronteira de leitura; "o control plane ainda não falou" é
-   estado derivado de `observedGeneration`, condições e idade — nunca da forma do
-   JSON.
+   estado derivado da comparação entre `status.observedGeneration` e
+   `metadata.generation` — nunca da forma do JSON.
+   <!-- Corrigido durante a implementação. A primeira versão nomeava três sinais:
+        observedGeneration, condições e idade. Dois deles não servem: condições não
+        existem em StatefulSet, e nenhum documento fixou limiar de idade. Nomear
+        três quando só um é utilizável era sobre-especificação. -->
 5. **Nenhuma falha esvazia a tela.** Falha de um tipo de recurso afeta o painel
    daquele tipo e mais nada.
 

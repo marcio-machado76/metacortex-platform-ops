@@ -26,31 +26,31 @@
 
 ## 4. Interpretação — pods
 
-- [ ] 4.1 Implementar o estado exibido de pod a partir de fase, marca de remoção e estado dos containers, e verificar com a fixture 2.1 que o resultado é `CrashLoopBackOff` e não `Running`
-- [ ] 4.2 Implementar a detecção de pod em remoção pela marca de remoção, e verificar com teste que fase `Running` mais marca presente produz `Terminating`
-- [ ] 4.3 Implementar a contagem de containers prontos sobre o total, e verificar com teste que pod sem container pronto produz `0/1` e não erro
-- [ ] 4.4 Implementar a exibição das duas metades do motivo de falha, e verificar com a fixture 2.1 que os dois motivos aparecem e que o do encerramento anterior é apresentado como causa
-- [ ] 4.5 Implementar a leitura de presença de sonda de prontidão por container, e verificar com teste que pod com dois containers e uma sonda produz `1/2`
+- [x] 4.1 Implementar o estado exibido de pod a partir de fase, marca de remoção e estado dos containers, e verificar com a fixture 2.1 que o resultado é `CrashLoopBackOff` e não `Running`
+- [x] 4.2 Implementar a detecção de pod em remoção pela marca de remoção, e verificar com teste que fase `Running` mais marca presente produz `Terminating`
+- [x] 4.3 Implementar a contagem de containers prontos sobre o total, e verificar com teste que pod sem container pronto produz `0/1` e não erro
+- [x] 4.4 Implementar a exibição das duas metades do motivo de falha, e verificar com a fixture 2.1 que os dois motivos aparecem e que o do encerramento anterior é apresentado como causa
+- [x] 4.5 Implementar a leitura de presença de sonda de prontidão por container, e verificar com teste que pod com dois containers e uma sonda produz `1/2`
 
 ## 5. Interpretação — controladores e Services
 
-- [ ] 5.1 Implementar a normalização de campo ausente, nulo e coleção vazia num único ponto, e verificar com teste que nenhuma chamada dessa camada testa presença de chave
-- [ ] 5.2 Implementar prontos sobre desejados para Deployment, e verificar com a fixture 2.2 que o resultado é `0/3` mesmo sem a chave `readyReplicas`
-- [ ] 5.3 Implementar prontos sobre desejados para StatefulSet pelo mesmo caminho, e verificar com a fixture 2.3 que o resultado é `1/1`
-- [ ] 5.4 Implementar a condição de controlador só onde a API a fornece, e verificar com a fixture 2.3 que o StatefulSet não produz coluna de condição e não é marcado como anormal
-- [ ] 5.5 Implementar a distinção entre zero afirmado e nada afirmado usando geração observada, condições e idade, e verificar com teste que controlador recém-criado não é classificado como degradado
-- [ ] 5.6 Implementar a agregação de fatias de endereço por Service, e verificar com teste que várias fatias do mesmo Service produzem uma só linha
-- [ ] 5.7 Implementar os três estados de endereço de Service, e verificar com a fixture 2.4 que as duas formas de ausência produzem o mesmo `sem endereço`
-- [ ] 5.8 Implementar a marcação de Service sem endereço como anormal, e verificar com teste que ela ocorre mesmo com todos os pods do namespace prontos
+- [x] 5.1 Implementar a normalização de campo ausente, nulo e coleção vazia num único ponto, e verificar com teste que nenhuma chamada dessa camada testa presença de chave
+- [x] 5.2 Implementar prontos sobre desejados para Deployment, e verificar com a fixture 2.2 que o resultado é `0/3` mesmo sem a chave `readyReplicas`
+- [x] 5.3 Implementar prontos sobre desejados para StatefulSet pelo mesmo caminho, e verificar com a fixture 2.3 que o resultado é `1/1`
+- [x] 5.4 Implementar a condição de controlador só onde a API a fornece, e verificar com a fixture 2.3 que o StatefulSet não produz coluna de condição e não é marcado como anormal
+- [x] 5.5 Implementar a distinção entre zero afirmado e nada afirmado usando geração observada, condições e idade, e verificar com teste que controlador recém-criado não é classificado como degradado
+- [x] 5.6 Implementar a agregação de fatias de endereço por Service, e verificar com teste que várias fatias do mesmo Service produzem uma só linha
+- [x] 5.7 Implementar os três estados de endereço de Service, e verificar com a fixture 2.4 que as duas formas de ausência produzem o mesmo `sem endereço`
+- [x] 5.8 Implementar a marcação de Service sem endereço como anormal, e verificar com teste que ela ocorre mesmo com todos os pods do namespace prontos
 
 ## 6. Interpretação — eventos e ordenação
 
-- [ ] 6.1 Implementar a leitura de eventos recentes com janela de uma hora sobre o instante da última ocorrência, e verificar com a fixture 2.5 que evento fora da janela não aparece
-- [ ] 6.2 Implementar a ordenação de eventos do mais recente para o mais antigo, e verificar com teste que a ordem de entrada não influencia a de saída
-- [ ] 6.3 Implementar o recuo para o campo alternativo de instante quando o principal vier ausente ou nulo, e verificar com teste que os dois casos produzem o mesmo resultado
-- [ ] 6.4 Implementar os cinco critérios de anormalidade, cada um apontando o campo lido que o originou, e verificar com teste que nenhum critério é derivado de outro critério
-- [ ] 6.5 Implementar a ordenação por anormalidade com alfabética para os demais, e verificar com as fixtures 2.2 e 2.6 que o degradado vem antes do saudável
-- [ ] 6.6 Verificar com teste que todo objeto ordenado como anormal carrega ao menos um critério exibível
+- [x] 6.1 Implementar a leitura de eventos recentes com janela de uma hora sobre o instante da última ocorrência, e verificar com a fixture 2.5 que evento fora da janela não aparece
+- [x] 6.2 Implementar a ordenação de eventos do mais recente para o mais antigo, e verificar com teste que a ordem de entrada não influencia a de saída
+- [x] 6.3 Implementar o recuo para o campo alternativo de instante quando o principal vier ausente ou nulo, e verificar com teste que os dois casos produzem o mesmo resultado
+- [x] 6.4 Implementar os cinco critérios de anormalidade, cada um apontando o campo lido que o originou, e verificar com teste que nenhum critério é derivado de outro critério
+- [x] 6.5 Implementar a ordenação por anormalidade com alfabética para os demais, e verificar com as fixtures 2.2 e 2.6 que o degradado vem antes do saudável
+- [x] 6.6 Verificar com teste que todo objeto ordenado como anormal carrega ao menos um critério exibível
 
 ## 7. Tela
 
