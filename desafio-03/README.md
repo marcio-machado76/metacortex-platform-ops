@@ -73,6 +73,13 @@ marcadas como correções, com o motivo:
   era falso quando foi escrito, com a ordem dos commits provando que não é trave movida
   depois do resultado
 
+## Marketing pessoal
+
+Três textos em [`marketing-pessoal/`](marketing-pessoal/), um por tese, cada um
+com evidência própria e nenhuma reaproveitada entre eles. Foram escritos para
+publicação fora daqui, e ficam versionados porque tudo que afirmam aponta para
+arquivos deste repositório.
+
 ## Instalação das skills
 
 As duas skills são versionadas em `ticket-01-.../skill/` e `ticket-02-.../skill/`. Para
