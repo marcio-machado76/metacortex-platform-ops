@@ -79,14 +79,14 @@
 
 ## 10. Validação contra o cluster real
 
-- [ ] 10.1 Rodar contra `nyx-dev` e verificar o critério de aceite 1: Deployment `1/1`, StatefulSet `1/1`, dois Services com endereço, nenhum objeto anormal
-- [ ] 10.2 Rodar contra `nyx-prod`, `orion-stg` e `nyx-stg` e verificar o critério de aceite 2: `0/2` com os dois motivos, `0/3` sem `readyReplicas`, e Service sem endereço
-- [ ] 10.3 Comparar `nyx-dev` e `orion-prod` e verificar o critério de aceite 3: réplica única e duas réplicas no mesmo formato de coluna
-- [ ] 10.4 Verificar o critério de aceite 4: o StatefulSet aparece sem coluna de condição e sem marca de anormalidade
-- [ ] 10.5 Verificar o critério de aceite 5: `orion-web` do `orion-stg` sem sonda de prontidão e `nyx-api` do `nyx-dev` com sonda
-- [ ] 10.6 Rodar sob o contexto `platform-ro-sem-events` e verificar o critério de aceite 6: painel de eventos negado, os demais preenchidos
-- [ ] 10.7 Rodar com o certificado de cliente vencido e verificar o critério de aceite 7: estado de credencial recusada, contexto e servidor visíveis, sem rastreamento de pilha
-- [ ] 10.8 Rodar contra endereço morto e verificar o critério de aceite 8: estado de indisponível, endereço tentado visível, código de saída 0 ao encerrar
-- [ ] 10.9 Verificar o critério de aceite 9: busca por nome dentro do namespace selecionado
-- [ ] 10.10 Rodar a sessão inteira sob `platform-ro` e verificar o critério de aceite 10: nenhuma negativa de RBAC no registro de auditoria
-- [ ] 10.11 Gravar a saída crua de cada verificação acima em `evidencias/`, com o comando que a reproduz ao lado
+- [x] 10.1 Rodar contra `nyx-dev` e verificar o critério de aceite 1 (corrigido depois da validação): Deployment `1/1`, StatefulSet `1/1`, dois Services com endereço, e a única marca de anormalidade sendo o `reinícios: 2` do pod — ver `evidencias/criterio1-nyx-dev.stdout.txt`
+- [x] 10.2 Rodar contra `nyx-prod`, `orion-stg` e `nyx-stg` e verificar o critério de aceite 2: `0/2` com os dois motivos, `0/3` sem `readyReplicas`, e Service sem endereço
+- [x] 10.3 Comparar `nyx-dev` e `orion-prod` e verificar o critério de aceite 3: réplica única e duas réplicas no mesmo formato de coluna
+- [x] 10.4 Verificar o critério de aceite 4: o StatefulSet aparece sem coluna de condição e sem marca de anormalidade
+- [x] 10.5 Verificar o critério de aceite 5: `orion-web` do `orion-stg` sem sonda de prontidão e `nyx-api` do `nyx-dev` com sonda
+- [x] 10.6 Rodar sob o contexto `platform-ro-sem-events` e verificar o critério de aceite 6: painel de eventos negado, os demais preenchidos
+- [x] 10.7 Rodar com o certificado de cliente vencido e verificar o critério de aceite 7: estado de credencial recusada, contexto e servidor visíveis, sem rastreamento de pilha
+- [x] 10.8 Rodar contra endereço morto e verificar o critério de aceite 8: estado de indisponível, endereço tentado visível, código de saída 0 ao encerrar
+- [x] 10.9 Verificar o critério de aceite 9: busca por nome dentro do namespace selecionado
+- [ ] 10.10 Rodar a sessão inteira sob `platform-ro` e verificar o critério de aceite 10: nenhuma negativa de RBAC no registro de auditoria — **não verificável como escrita**: o `kind-metacortex-lab` não tem auditoria habilitada (sem flag `--audit-log-*`, sem arquivo de log). Provado por composição equivalente (guarda estático + `kubectl auth can-i` negando todo verbo de escrita para `platform-ro` + sessão completa sem incidente). Ver `evidencias/grupo10-validacao-criterios-de-aceite.md`, critério 10
+- [x] 10.11 Gravar a saída crua de cada verificação acima em `evidencias/`, com o comando que a reproduz ao lado

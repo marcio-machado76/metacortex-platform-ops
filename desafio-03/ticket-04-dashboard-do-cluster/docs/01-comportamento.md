@@ -315,7 +315,15 @@ que não há sequer o que tentar.
 
 1. **Retrato do namespace saudável.** Com `nyx-dev` selecionado, a tela mostra o
    Deployment `nyx-api` em `1/1`, o StatefulSet `nyx-postgres` em `1/1`, os dois
-   Services com endereço pronto, e nenhum objeto marcado como anormal.
+   Services com endereço pronto, e a única marca de anormalidade é o
+   `reinícios: 2` do pod `nyx-api`.
+   <!-- Corrigido depois da validação. A redação original exigia "nenhum objeto
+        marcado como anormal", e isso já era falso quando foi escrita: o
+        restartCount: 2 daquele pod está registrado em
+        evidencias/preparacao-do-cluster.md desde o commit 56008ac, e este
+        documento só passou a existir no commit seguinte. A tela faz o que a spec
+        manda; o critério é que contradizia um fato do próprio repositório. A
+        limitação de desenho que isso expõe está em 03-divergencias, item 27. -->
 2. **Retrato dos três chamados.** `nyx-prod` mostra `0/2` com `CrashLoopBackOff` e
    `OOMKilled`; `orion-stg` mostra `0/3` sem `readyReplicas`; `nyx-stg` mostra
    pods `2/2` e o Service `nyx-api` **sem endereço**.

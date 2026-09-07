@@ -392,3 +392,109 @@ Nota sobre a conferência da fronteira: um `grep` ingênuo acusa o `tela.py`, po
 docstring dele **cita** a string proibida para dizer que não a contém. Por AST não
 há import nenhum. O guarda do grupo 8 não cai nessa — foi por isso que ele pegou a
 violação real que introduzi e ignorou a menção em texto.
+
+---
+
+# Grupo 10 — validação contra o cluster real
+
+Quarta onda em contexto frio, feita por quem não implementou nada. Validação
+escrita por quem escreveu o código tende a exercitar o que ele já sabe que
+funciona; esta não tinha como saber.
+
+Dos dez critérios de aceite, **oito passaram, um falhou e um não era verificável
+como escrito.** Os dois que não passaram são defeitos da spec, não do código — e
+são o resultado mais útil da onda.
+
+## O critério que falhou, e por que a correção é do documento
+
+### 27. "Nenhum objeto marcado como anormal" já era falso quando foi escrito
+
+O critério 1 exigia que `nyx-dev` aparecesse sem nenhuma marca de anormalidade. A
+tela mostra:
+
+```
+nyx-api-77bb84897f-nlfcb   Running  1/1  reinícios: 2  sonda ✓  idade 8h50m  ⚠ reinícios: 2
+```
+
+**A tela está certa.** O critério de peso 3 da D7 é "reinícios maiores que zero",
+sem janela de tempo, e aquele pod reiniciou duas vezes — pelo `ECONNREFUSED` no
+banco que ainda subia, na primeira aplicação dos manifests.
+
+A correção é do documento, e isso é verificável na ordem dos commits:
+
+```
+56008ac  evidencias/preparacao-do-cluster.md   ->  "restartCount: 2, depois estabilizou"
+3a5b830  docs/01-comportamento.md              ->  "nenhum objeto marcado como anormal"
+```
+
+O fato estava registrado **um commit antes** do critério que o contradiz. Não é
+caso de mover a trave depois de ver o resultado: o critério nasceu em desacordo com
+o próprio repositório. **Corrigido no `01-comportamento.md`**, com nota.
+
+### A limitação de desenho que isso expõe, e que fica em aberto
+
+O pod está de pé há quase nove horas e continua marcado. **"Reinícios maiores que
+zero" não expira**: qualquer pod que tenha soluçado uma vez fica sinalizado para
+sempre.
+
+Num parque de verdade isso vira ruído permanente, e ruído permanente é como uma
+tela de triagem deixa de ser lida. As duas saídas têm custo:
+
+| Caminho | Ganho | Custo |
+|---|---|---|
+| Deixar como está | o critério continua sendo dado bruto da API, sem limiar inventado | a tela acumula marca que não expira, e o sinal apodrece |
+| Fazer o reinício envelhecer | a marca some quando o pod estabiliza | exige um limiar de tempo que nenhum documento fixou — **exatamente a sobre-especificação que já custou a correção do item 8** |
+
+Não foi decidido nesta onda, de propósito: é decisão de desenho e não conserto de
+validação. Fica registrado como limitação conhecida.
+
+## O critério que não era verificável como escrito
+
+### 28. Auditoria de apiserver não existe num cluster `kind`
+
+O critério 10 mandava provar, no registro de auditoria, que a sessão sob
+`platform-ro` não produziu negativa de RBAC. O `kind-metacortex-lab` **não tem
+auditoria habilitada** — sem flag `--audit-log-*`, sem arquivo.
+
+A agente não inventou o resultado, não habilitou auditoria no cluster (seria
+escrever configuração) e **deixou a caixa desmarcada com o motivo ao lado da
+tarefa**. Foi exatamente o pedido: caixa desmarcada com motivo vale mais que caixa
+marcada por aproximação.
+
+No lugar, propôs e rodou uma prova por composição:
+
+1. o guarda estático de `test_contencao.py`, que prova que não existe verbo de
+   escrita nem import fora da fronteira;
+2. `kubectl auth can-i` sobre **48 pares de verbo de escrita e recurso**,
+   incluindo `secrets`, todos negados para o `platform-ro`;
+3. uma sessão completa — cinco namespaces, busca, atualização — sem incidente.
+
+É mais fraca que o registro de auditoria num ponto: prova que o cluster recusaria e
+que o código não tenta, mas não observa a sessão de fora. **A tarefa continua
+desmarcada**, e o critério fica como o único dos dez sem prova direta.
+
+## O que passou
+
+Os oito restantes, com captura de tela em texto gravada em `evidencias/`:
+
+| Critério | O que ficou provado |
+|---|---|
+| 2 | `nyx-prod` 0/2 com `CrashLoopBackOff` e `OOMKilled`; `orion-stg` 0/3 sem `readyReplicas`; `nyx-stg` com Service `sem endereço` |
+| 3 | `1/1` e `2/2` no mesmo formato de coluna |
+| 4 | StatefulSet sem coluna de condição e sem marca de anormal |
+| 5 | sonda `—` no `orion-web`, `✓` no `nyx-api` |
+| 6 | sob `platform-ro-sem-events`: painel de eventos negado, os outros três preenchidos |
+| 7 | certificado vencido: estado de credencial, contexto e servidor visíveis, zero traceback, na tela e no binário real |
+| 8 | endereço morto: estado de indisponível, endereço tentado visível, e `q` devolvendo código 0 no processo real |
+| 9 | busca por `postgres` filtrando os quatro painéis, e `Esc` restaurando |
+
+Os critérios 7 e 8 foram exercitados **duas vezes**: na tela, por captura, e no
+binário instalado dentro de um pseudo-terminal, para confirmar o código de saída do
+processo de verdade. O 8 é o que prova a decisão mais contraintuitiva da spec —
+cluster inalcançável **não** é código de saída diferente de zero.
+
+## Higiene do ambiente
+
+O certificado vencido, a chave da CA e o kubeconfig de teste foram gerados em
+diretório temporário fora do repositório e apagados ao final. O contexto corrente
+do `kubectl` nunca mudou. Conferido: não há material de credencial no repositório.

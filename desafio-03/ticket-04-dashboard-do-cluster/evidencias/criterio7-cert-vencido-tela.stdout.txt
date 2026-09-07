@@ -1,0 +1,55 @@
+contexto resolvido : cert-vencido
+servidor resolvido : https://127.0.0.1:34969
+namespaces carregados: ()
+nenhum namespace disponivel (leitura de namespaces nao chegou a 'ok') - capturando o estado da tela como esta, sem navegar
+namespace selecionado: None
+ contexto: cert-vencido    servidor: https://127.0.0.1:34969                                                                                                              
+ ⚠ TELA EM ESTADO DE INDISPONIBILIDADE — credencial recusada    (namespaces: atualizado há 1s)                                                                            
+┌──────────────────────────┐┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Namespaces               ││▊▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▎│
+│ cluster não respondeu —  ││▊  busca por nome (Esc limpa)                                                                                                              ▎│
+│ credencial recusada      ││▊▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▎│
+│                          ││ Pods                                                                                                                                       │
+│                          ││ nenhum objeto neste namespace                                                                                                              │
+│                          ││ Controladores (Deployments/StatefulSets)                                                                                                   │
+│                          ││ deployments: nenhum objeto neste namespace ; statefulsets: nenhum objeto neste namespace                                                   │
+│                          ││ Services                                                                                                                                   │
+│                          ││ nenhum objeto neste namespace                                                                                                              │
+│                          ││ Eventos (última hora)                                                                                                                      │
+│                          ││ nenhum objeto neste namespace                                                                                                              │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+│                          ││                                                                                                                                            │
+└──────────────────────────┘└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
