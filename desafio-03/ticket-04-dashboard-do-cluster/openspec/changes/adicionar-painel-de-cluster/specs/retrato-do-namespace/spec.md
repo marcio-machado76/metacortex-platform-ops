@@ -149,3 +149,37 @@ cluster.
 - **WHEN** alguém discorda da ordem apresentada
 - **THEN** o critério exibido em cada linha permite conferir a classificação contra
   o dado lido do cluster
+
+<!-- Movidos de leitura-do-cluster durante a implementação: são
+     interpretação, e a camada de leitura não interpreta (design.md, D-A). -->
+
+### Requirement: Normalização de campo ausente, nulo e vazio
+
+O sistema SHALL tratar campo ausente, campo nulo e coleção vazia como o mesmo fato
+na fronteira de leitura, e MUST NOT decidir estado testando a presença de uma
+chave.
+
+#### Scenario: A mesma ausência em duas formas
+
+- **WHEN** um Service não tem endereço, e o objeto de endereços omite a chave
+  enquanto a fatia de endereços a traz com valor nulo
+- **THEN** os dois produzem o mesmo resultado: nenhum endereço
+
+#### Scenario: Contagem de réplicas prontas ausente
+
+- **WHEN** um controlador não tem nenhuma réplica pronta e o campo de réplicas
+  prontas não vem no status
+- **THEN** a contagem lida é zero
+
+### Requirement: Distinção entre zero afirmado e nada afirmado
+
+O sistema SHALL distinguir "o control plane afirmou zero" de "o control plane
+ainda não afirmou nada", e SHALL derivar essa distinção do estado observado do
+objeto, nunca da forma do JSON recebido.
+
+#### Scenario: Controlador recém-criado
+
+- **WHEN** um controlador foi criado há poucos segundos e seu status ainda não
+  reflete a geração corrente da especificação
+- **THEN** o sistema o classifica como ainda não reportado
+- **AND** MUST NOT classificá-lo como degradado

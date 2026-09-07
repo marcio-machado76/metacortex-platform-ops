@@ -92,33 +92,21 @@ inalcançável, e MUST NOT depender do texto de mensagens de erro para fazê-lo.
 - **AND** MUST NOT afirmar que ela está expirada, porque credencial vencida e
   credencial inválida chegam de forma indistinguível
 
-### Requirement: Normalização de campo ausente, nulo e vazio
+### Requirement: A leitura não interpreta
 
-O sistema SHALL tratar campo ausente, campo nulo e coleção vazia como o mesmo fato
-na fronteira de leitura, e MUST NOT decidir estado testando a presença de uma
-chave.
+O sistema SHALL entregar, dentro do envelope, a resposta da API como ela veio, e
+MUST NOT normalizar, derivar nem reclassificar campo algum nesta camada.
 
-#### Scenario: A mesma ausência em duas formas
+#### Scenario: A resposta chega intacta
 
-- **WHEN** um Service não tem endereço, e o objeto de endereços omite a chave
-  enquanto a fatia de endereços a traz com valor nulo
-- **THEN** os dois produzem o mesmo resultado: nenhum endereço
+- **WHEN** a leitura de um tipo é bem-sucedida
+- **THEN** o envelope carrega a resposta com as mesmas chaves que a API devolveu
+- **AND** chave ausente e chave com valor nulo continuam distinguíveis dentro dele
 
-#### Scenario: Contagem de réplicas prontas ausente
-
-- **WHEN** um controlador não tem nenhuma réplica pronta e o campo de réplicas
-  prontas não vem no status
-- **THEN** a contagem lida é zero
-
-### Requirement: Distinção entre zero afirmado e nada afirmado
-
-O sistema SHALL distinguir "o control plane afirmou zero" de "o control plane
-ainda não afirmou nada", e SHALL derivar essa distinção do estado observado do
-objeto, nunca da forma do JSON recebido.
-
-#### Scenario: Controlador recém-criado
-
-- **WHEN** um controlador foi criado há poucos segundos e seu status ainda não
-  reflete a geração corrente da especificação
-- **THEN** o sistema o classifica como ainda não reportado
-- **AND** MUST NOT classificá-lo como degradado
+<!-- Corrigido durante a implementação. Esta capacidade trazia os requisitos de
+     normalização de ausente/nulo/vazio e de distinção entre zero afirmado e nada
+     afirmado. Os dois são interpretação, e a decisão D-A do design.md diz que
+     nenhuma interpretação acontece na camada de leitura. Estavam na capacidade
+     errada e foram movidos para retrato-do-namespace. No lugar deles ficou o
+     requisito acima, que é o que esta camada de fato deve garantir: entregar a
+     resposta sem tocá-la. -->

@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "painel-cluster"
+version = "0.1.0"
+description = "Retrato de um namespace do cluster corrente — pods, controladores, services e eventos, numa tela de terminal que não substitui o kubectl."
+readme = "README.md"
+requires-python = ">=3.10"
+# Versões fixadas pelo mesmo motivo de requirements.txt (docs/02-decisoes-
+# tecnicas.md, D2/D8): o que pode mudar debaixo do projeto fica preso a uma
+# versão conhecida, não a um intervalo.
+dependencies = [
+    "kubernetes==36.0.3",
+    "textual==8.2.8",
+]
+
+[project.scripts]
+painel-cluster = "painel_cluster.cli:cli"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

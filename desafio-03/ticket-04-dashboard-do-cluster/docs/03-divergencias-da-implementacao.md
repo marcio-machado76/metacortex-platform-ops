@@ -246,3 +246,149 @@ pod/nyx-api (CrashLoop + OOMKilled)
 
 Cada critério carrega o campo que o originou — que era a exigência da D7 para a
 ordenação ser auditável.
+
+---
+
+# Grupos 7, 8 e 9 — a tela, os guardas e o empacotamento
+
+Terceira onda em contexto frio.
+
+## O erro de classificação que esta onda expôs
+
+### 17. Dois requisitos estavam na capacidade errada
+
+A spec de `leitura-do-cluster` trazia os requisitos **"Normalização de campo
+ausente, nulo e vazio"** e **"Distinção entre zero afirmado e nada afirmado"**. Os
+dois são interpretação — e a decisão D-A do `design.md` diz, com todas as letras,
+que *nenhuma interpretação acontece na camada de leitura*.
+
+O código estava certo e a spec errada: a implementação pôs os dois em `modelo.py`,
+como a D-A manda. **Movidos para `retrato-do-namespace`**, e no lugar deles ficou o
+requisito que aquela camada de fato deve garantir: entregar a resposta sem tocá-la,
+com chave ausente e chave nula ainda distinguíveis dentro do envelope.
+
+A raiz do erro está numa palavra minha. O `01-comportamento.md` dizia que a
+normalização acontece *"na fronteira de leitura"*, querendo dizer "no primeiro ponto
+que lê o campo". Foi lido, com razão, como "no módulo que fala com a rede".
+**Corrigido também lá.**
+
+## O que a spec não respondia
+
+### 18. `Tab` com quatro painéis, e não dois
+
+O `01-comportamento.md` descreve `Tab` como alternador entre "lista de namespaces" e
+"painel de objetos" — mas a tela tem quatro painéis de objeto.
+**Resolvido:** `Tab` sempre volta para a lista a partir de qualquer painel, e sempre
+avança para o painel de Pods a partir da lista. Continua sendo um alternador de dois
+estados, com destino fixo do lado dos objetos.
+
+### 19. Services `ok` com endereços `negado` ou `indisponível`
+
+Nenhum artefato cobre o cruzamento de **dois envelopes dentro do mesmo painel**.
+**Resolvido:** o painel é dirigido pelo envelope de Services; quando o de endereços
+não está `ok` nem `vazio`, a coluna mostra que os endereços estão indisponíveis, com
+o motivo — e **o critério "sem endereço" não é aplicado**.
+
+Essa segunda metade é a parte importante: afirmar "sem endereço" sem dado de
+endereço confiável seria a tela afirmando algo que a API não sustentou, que é
+exatamente o invariante 3. A ausência de um requisito foi resolvida aplicando outro.
+
+### 20. Não havia sinal de falha de sessão, só de tipo
+
+O `cliente.py` devolve envelope por tipo; nada carrega "a sessão inteira falhou".
+**Resolvido estruturalmente**, sem reclassificar exceção na tela: se a leitura de
+namespaces vier indisponível, ou se os seis envelopes de escopo de namespace vierem
+todos indisponíveis no mesmo ciclo, um aviso assume a linha de status. A
+classificação continua acontecendo só na fronteira, como a D-D exige.
+
+### 21. Busca aplicada a eventos
+
+Evento não tem nome próprio, e a spec fala em "objetos".
+**Resolvido** filtrando por `involvedObject.name`, o mesmo campo que correlaciona o
+evento às linhas dos outros painéis.
+
+### 22. Qual namespace abre selecionado
+
+Não dito em lugar nenhum. **Resolvido** com o primeiro em ordem alfabética — a mesma
+ordem em que a lista já é exibida.
+
+### 23. A idade do dado ficou global, não por painel
+
+Era ponto em aberto declarado no `design.md`. **Resolvido** com dois indicadores
+globais, um para os objetos e outro para a lista de namespaces — o que de quebra
+torna a independência dos dois intervalos visível na tela e testável.
+
+## Uma dívida aceita
+
+### 24. A tela lê dois campos crus, sem passar pelo modelo
+
+O `01-comportamento.md` pede colunas que os tipos do `modelo.py` não carregam:
+**idade do pod** e **tipo e portas do Service**. Nenhuma delas passa pela armadilha
+ausente/nulo/vazio que motiva o `modelo.py` existir.
+
+**Resolvido** lendo o campo cru na tela, reaproveitando a normalização pública do
+modelo, em vez de alterar um módulo já testado por outra onda.
+
+**Aceito, com a dívida registrada:** é um vazamento pequeno da separação entre
+interpretar e desenhar. Se um terceiro campo aparecer, o certo é levá-los para o
+`modelo.py` em vez de continuar somando exceções.
+
+## Um defeito de biblioteca, não do projeto
+
+### 25. O `Tab` do Textual vencia o do projeto, em silêncio
+
+A `Screen` do Textual registra `Binding("tab", "app.focus_next")` por padrão, e por
+estar mais perto do widget focado na resolução por DOM, ela ganhava do binding do
+projeto. O efeito era silencioso: o foco ia parar num container de rolagem em vez da
+tabela.
+
+Corrigido com `priority=True`. Registrado aqui porque não está em artefato nenhum e
+não é óbvio na documentação da biblioteca.
+
+## Os guardas foram vistos falhando
+
+Exigência acrescentada ao pedido desta onda: teste de guarda que nunca foi visto
+vermelho não é guarda.
+
+| Guarda | Violação introduzida | Resultado |
+|---|---|---|
+| verbo de escrita em `src/` | `patch_namespaced_pod` em `tela.py` | vermelho, revertido, verde |
+| import fora da fronteira | `import kubernetes` em `modelo.py` | vermelho, revertido, verde |
+| distinção ausente/nulo preservada | leitura trocada para o modo que colapsa | vermelho, revertido, verde |
+
+**Reproduzi o segundo por conta própria**, com `import urllib3` acrescentado ao
+`modelo.py`: o teste apontou o módulo pelo nome, e o `git diff` do arquivo ficou
+limpo depois de desfazer.
+
+## Um achado sobre o próprio instrumento de medida
+
+### 26. `--disable-socket` bloqueia o Python, não só a rede
+
+Rodar a suíte com o socket bloqueado passou a falhar ao chegar na tela: o
+`asyncio.new_event_loop()` abre um `socketpair` de domínio Unix para o seu próprio
+mecanismo interno. **Não é rede tocada por teste — é comunicação do processo
+consigo mesmo.**
+
+Resolvido com a opção que libera socket Unix e mantém bloqueada a rede de verdade,
+confirmando que uma conexão comum continua barrada. A opção ficou documentada e
+fora da configuração padrão, para não tornar o `pytest-socket` obrigatório.
+
+Vale registrar porque é o tipo de coisa que faria alguém afrouxar a verificação
+achando que ela é frágil, quando o que precisa é ser mais específica.
+
+## O que rodou
+
+Conferido de forma independente:
+
+```
+85 passed in 6.97s
+caixas marcadas: 52 de 63  (grupos 1 a 9 completos; falta só o grupo 10)
+import real de kubernetes/urllib3 em src/, por AST: só cliente.py
+painel-cluster --help      -> rc=0
+painel-cluster --nao-existe -> rc=1, sem Traceback
+```
+
+Nota sobre a conferência da fronteira: um `grep` ingênuo acusa o `tela.py`, porque a
+docstring dele **cita** a string proibida para dizer que não a contém. Por AST não
+há import nenhum. O guarda do grupo 8 não cai nessa — foi por isso que ele pegou a
+violação real que introduzi e ignorou a menção em texto.

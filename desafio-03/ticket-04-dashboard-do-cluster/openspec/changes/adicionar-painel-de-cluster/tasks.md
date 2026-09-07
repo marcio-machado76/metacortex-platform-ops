@@ -54,28 +54,28 @@
 
 ## 7. Tela
 
-- [ ] 7.1 Montar a estrutura da tela com os painéis de namespaces, pods, controladores, Services e eventos, e verificar por captura de texto que os cinco aparecem
-- [ ] 7.2 Implementar a exibição permanente de contexto e endereço do servidor, e verificar por captura que eles continuam visíveis nos estados de falha
-- [ ] 7.3 Implementar a seleção de namespace e o escopo dos demais painéis, e verificar que trocar de namespace troca o conteúdo dos quatro painéis
-- [ ] 7.4 Implementar a busca por trecho de nome e a limpeza da busca, e verificar que buscar `postgres` no `nyx-prod` deixa só os objetos correspondentes
-- [ ] 7.5 Implementar o desenho dos quatro estados de envelope, e verificar por captura que `vazio`, `negado` e `indisponível` são visualmente distintos entre si
-- [ ] 7.6 Implementar a atualização em intervalo fixo com ritmo próprio para a lista de namespaces, e verificar que os dois intervalos são independentes
-- [ ] 7.7 Implementar a atualização sob comando e a exibição da idade do dado, e verificar que o comando zera a idade exibida
-- [ ] 7.8 Implementar a coluna de critério de anormalidade, e verificar por captura que o motivo aparece na linha do objeto
+- [x] 7.1 Montar a estrutura da tela com os painéis de namespaces, pods, controladores, Services e eventos, e verificar por captura de texto que os cinco aparecem
+- [x] 7.2 Implementar a exibição permanente de contexto e endereço do servidor, e verificar por captura que eles continuam visíveis nos estados de falha
+- [x] 7.3 Implementar a seleção de namespace e o escopo dos demais painéis, e verificar que trocar de namespace troca o conteúdo dos quatro painéis
+- [x] 7.4 Implementar a busca por trecho de nome e a limpeza da busca, e verificar que buscar `postgres` no `nyx-prod` deixa só os objetos correspondentes
+- [x] 7.5 Implementar o desenho dos quatro estados de envelope, e verificar por captura que `vazio`, `negado` e `indisponível` são visualmente distintos entre si
+- [x] 7.6 Implementar a atualização em intervalo fixo com ritmo próprio para a lista de namespaces, e verificar que os dois intervalos são independentes
+- [x] 7.7 Implementar a atualização sob comando e a exibição da idade do dado, e verificar que o comando zera a idade exibida
+- [x] 7.8 Implementar a coluna de critério de anormalidade, e verificar por captura que o motivo aparece na linha do objeto
 
 ## 8. Garantia de só-leitura e contenção
 
-- [ ] 8.1 Escrever o teste que falha se qualquer verbo de escrita aparecer no código, e verificar que ele falha quando um verbo de escrita é introduzido de propósito
-- [ ] 8.2 Escrever o teste que falha se qualquer módulo **de `src/`** fora da fronteira importar o cliente ou o transporte, e verificar que ele falha quando o import é introduzido de propósito. O teste da própria fronteira precisa importar os tipos de exceção para simular o transporte, e está fora da regra
-- [ ] 8.3 Escrever o teste que falha se a leitura deixar de preservar a distinção entre chave ausente e valor nulo, e verificar que ele falha com o modo de leitura alternativo
-- [ ] 8.5 Escrever o teste que cobre falha de apiserver que não é 401 nem 403 (por exemplo 5xx), e verificar que ela vira envelope `indisponível` com o status no motivo, em vez de escapar
-- [ ] 8.4 Verificar que a suíte inteira roda sem tocar a rede, com o transporte simulado, e registrar a contagem de testes
+- [x] 8.1 Escrever o teste que falha se qualquer verbo de escrita aparecer no código, e verificar que ele falha quando um verbo de escrita é introduzido de propósito
+- [x] 8.2 Escrever o teste que falha se qualquer módulo **de `src/`** fora da fronteira importar o cliente ou o transporte, e verificar que ele falha quando o import é introduzido de propósito. O teste da própria fronteira precisa importar os tipos de exceção para simular o transporte, e está fora da regra
+- [x] 8.3 Escrever o teste que falha se a leitura deixar de preservar a distinção entre chave ausente e valor nulo, e verificar que ele falha com o modo de leitura alternativo
+- [x] 8.5 Escrever o teste que cobre falha de apiserver que não é 401 nem 403 (por exemplo 5xx), e verificar que ela vira envelope `indisponível` com o status no motivo, em vez de escapar
+- [x] 8.4 Verificar que a suíte inteira roda sem tocar a rede, com o transporte simulado, e registrar a contagem de testes
 
 ## 9. Empacotamento
 
-- [ ] 9.1 Escrever `pyproject.toml` expondo o comando `painel-cluster`, e verificar que `painel-cluster --help` funciona após instalação editável
-- [ ] 9.2 Implementar o código de saída 1 para erro de uso, e verificar que argumento inválido produz 1 e mensagem, sem rastreamento de pilha
-- [ ] 9.3 Escrever o `README.md` do ticket com a instalação, os dois contextos RBAC e qual deles é o recomendado, e verificar que seguir o README numa máquina limpa produz painel funcionando
+- [x] 9.1 Escrever `pyproject.toml` expondo o comando `painel-cluster`, e verificar que `painel-cluster --help` funciona após instalação editável
+- [x] 9.2 Implementar o código de saída 1 para erro de uso, e verificar que argumento inválido produz 1 e mensagem, sem rastreamento de pilha
+- [x] 9.3 Escrever o `README.md` do ticket com a instalação, os dois contextos RBAC e qual deles é o recomendado, e verificar que seguir o README numa máquina limpa produz painel funcionando
 
 ## 10. Validação contra o cluster real
 

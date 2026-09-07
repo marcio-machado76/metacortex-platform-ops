@@ -20,7 +20,7 @@ import types
 import pytest
 import urllib3.exceptions
 from kubernetes import client
-from kubernetes.client.exceptions import ForbiddenException, UnauthorizedException
+from kubernetes.client.exceptions import ApiException, ForbiddenException, UnauthorizedException
 
 from painel_cluster import cliente
 
@@ -345,3 +345,99 @@ def test_indisponibilidade_de_transporte_nao_e_confundida_com_negado(monkeypatch
 
     assert envelope.estado != cliente.EstadoEnvelope.NEGADO
     assert envelope.estado == cliente.EstadoEnvelope.INDISPONIVEL
+
+
+# --------------------------------------------------------------------- 8.5
+# ApiException que não é 401 nem 403 (por exemplo 5xx) vira `indisponivel`
+# com o status HTTP no motivo, em vez de escapar desta fronteira.
+#
+# docs/03-divergencias-da-implementacao.md, item 3: o comportamento já
+# existia em `_executar()` (o ramo genérico `except ApiException`), escrito
+# pela onda anterior sem teste dedicado — essa dívida está registrada como
+# tarefa 8.5, que é a que este teste fecha.
+
+
+def test_5xx_do_apiserver_produz_indisponivel_com_status_no_motivo(monkeypatch):
+    monkeypatch.setattr(
+        "kubernetes.client.CoreV1Api.list_namespaced_pod",
+        lambda self, *a, **k: (_ for _ in ()).throw(
+            ApiException(status=503, reason="Service Unavailable")
+        ),
+        raising=True,
+    )
+
+    envelope = cliente.ler_pods(_sessao_falsa(), "nyx-prod")
+
+    assert envelope.estado == cliente.EstadoEnvelope.INDISPONIVEL
+    assert envelope.estado != cliente.EstadoEnvelope.NEGADO
+    assert "503" in envelope.motivo
+
+
+def test_5xx_nao_e_confundido_com_401_nem_403(monkeypatch):
+    # Um 500 puro (sem reason de autorização/autenticação conhecida) precisa
+    # do mesmo tratamento genérico — não é um caso "quase 401" nem "quase
+    # 403" que mereça reaproveitar aquelas mensagens.
+    monkeypatch.setattr(
+        "kubernetes.client.AppsV1Api.list_namespaced_deployment",
+        lambda self, *a, **k: (_ for _ in ()).throw(
+            ApiException(status=500, reason="Internal Server Error")
+        ),
+        raising=True,
+    )
+
+    envelope = cliente.ler_deployments(_sessao_falsa(), "nyx-prod")
+
+    assert envelope.estado == cliente.EstadoEnvelope.INDISPONIVEL
+    assert "500" in envelope.motivo
+    assert "credencial" not in envelope.motivo.lower()
+    assert "permissao" not in envelope.motivo.lower()
+
+
+# --------------------------------------------------------------------- 8.3
+# A distinção entre chave ausente e valor nulo só sobrevive no modo cru
+# (`_preload_content=False`, D2/D9). Este teste é sensível ao *modo* de
+# leitura, não só ao resultado: o dublê abaixo devolve, quando chamado com
+# `_preload_content=False` (o modo que `cliente._executar` sempre pede),
+# uma resposta crua onde "chave ausente" e "valor nulo" continuam sendo dois
+# fatos distintos; e devolve, em qualquer outro modo — o "modo de leitura
+# alternativo" que a D2 descartou, o modelo tipado — um objeto sem `.data`
+# nenhum para desserializar, do jeito que o cliente tipado realmente se
+# comporta (não haveria JSON cru para ler).
+#
+# **Isto foi visto falhando de propósito.** Editando `cliente._executar`
+# para chamar `fn(*args, _preload_content=True)` em vez de `False` (o "modo
+# de leitura alternativo"), rodar só este teste produz `AttributeError:
+# 'SimpleNamespace' object has no attribute 'data'` — vermelho — porque o
+# dublê deixa de devolver algo com `.data` assim que o modo muda. Desfeita a
+# edição, o teste volta a passar. Ver o relatório desta onda para o comando
+# exato e a saída obtida.
+
+
+def test_leitura_crua_preserva_distincao_entre_ausente_e_nulo(monkeypatch):
+    def lista_pods(self, *args, **kwargs):
+        if kwargs.get("_preload_content") is False:
+            bruto = {
+                "items": [
+                    {"status": {"nulaExplicita": None, "vazia": []}}
+                    # "ausente" nao existe de proposito.
+                ]
+            }
+            return types.SimpleNamespace(data=json.dumps(bruto).encode())
+        # "Modo de leitura alternativo" (D2, descartado): o cliente tipado
+        # não devolve `.data` nenhum — a distinção já colapsou antes de
+        # chegar aqui, e não haveria nem JSON cru para preservar.
+        raise AssertionError(
+            "modo de leitura alternativo: chamado sem _preload_content=False"
+        )
+
+    monkeypatch.setattr(
+        "kubernetes.client.CoreV1Api.list_namespaced_pod",
+        lista_pods,
+        raising=True,
+    )
+
+    envelope = cliente.ler_pods(_sessao_falsa(), "nyx-prod")
+
+    status = envelope.itens[0]["status"]
+    assert "nulaExplicita" in status and status["nulaExplicita"] is None
+    assert "ausente" not in status

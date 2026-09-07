@@ -143,8 +143,14 @@ Endpoints/nyx-api     : chave 'subsets'   AUSENTE
 EndpointSlice do mesmo: chave 'endpoints' PRESENTE, valor null
 ```
 
-A normalização é `obj.get(campo) or []`, aplicada na fronteira de leitura. Nenhum
-ponto do código pergunta se a chave existe para decidir estado.
+A normalização é `obj.get(campo) or []`, aplicada **no ponto em que o campo é lido
+pela camada de interpretação** — não na camada que fala com a API, que entrega a
+resposta como ela veio. Nenhum ponto do código pergunta se a chave existe para
+decidir estado.
+<!-- Corrigido durante a implementação. A redação anterior dizia "na fronteira de
+     leitura", o que colidia com a decisão D-A do design: a camada que fala com a
+     API não interpreta nada. "Fronteira de leitura" queria dizer o primeiro ponto
+     que lê o campo, e foi lido como o módulo de rede. -->
 
 ### Eventos
 
