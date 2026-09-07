@@ -131,3 +131,36 @@ classificação, mas a skill precisa saber que o documento não responde:
 2. **Nada trata de migração de banco na inicialização.** O fake-shop roda
    `flask db upgrade` no start, e a regra 2.3 manda duas réplicas em prod: duas
    migrações partem juntas. O padrão não tem vocabulário para isso.
+
+
+---
+
+# O que o agente entendeu diferente do que eu escrevi
+
+Rodar a skill em sessão limpa, num projeto que ela não conhecia, expôs uma lacuna
+que a leitura do próprio texto não expõe.
+
+**O agente versionou um objeto `Secret`.** Ao escrever os manifests do
+`encontros-tech`, ele criou `03-secret-web-db.yaml` com
+`DATABASE_URL: postgresql://CHANGEME:CHANGEME@...`, acompanhado de um comentário
+extenso avisando que o valor é placeholder e que a credencial real deve entrar por
+cofre, nunca por commit.
+
+Não é vazamento e não contraria a letra da regra 3.3 — nenhum valor sensível foi
+escrito. Mas contraria a prática: nos manifests do fake-shop, escritos à mão antes
+da skill existir, nenhum Secret foi versionado; o workload aponta para `orion-db` e
+o README diz quem o cria. A entrega anterior fez o mesmo.
+
+**A culpa é da skill, não do agente.** O `SKILL.md` dizia "sempre por referência a
+um Secret" e nunca dizia "e o objeto Secret não entra no repositório". Diante de
+uma instrução que pede referência a um objeto que não existe, criar o objeto é a
+leitura razoável.
+
+O que mudou por causa disso: o modo de escrita ganhou uma linha explícita, com o
+motivo — Secret versionado com placeholder é o arquivo que alguém preenche com a
+credencial real no dia em que tiver pressa.
+
+**O manifesto gerado ficou como saiu.** Ele é a evidência da execução, e corrigi-lo
+apagaria justamente o achado. O que a entrega mostra é a sequência: a skill foi
+executada, a saída divergiu da prática, a lacuna estava no texto da skill, e o
+texto foi corrigido — nessa ordem, e visível no histórico.

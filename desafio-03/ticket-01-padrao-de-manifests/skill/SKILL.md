@@ -109,6 +109,14 @@ desses achados vira campo no manifesto.
 configuração, workloads, exposição — para que um `kubectl apply -f <dir>/` funcione
 sem ajuda.
 
+**Não escreva o objeto Secret.** O manifesto do workload aponta para o Secret por
+`secretKeyRef`; quem o cria é o cofre da plataforma, fora do Git. Versionar um
+Secret, mesmo com valor de placeholder, cria o arquivo que alguém preenche com a
+credencial real no dia em que tiver pressa — e a regra 3.3 existe justamente para
+que esse arquivo não exista. Documente no README quais Secrets precisam existir
+antes do deploy, com suas chaves, em vez de deixar um esqueleto pronto para ser
+preenchido.
+
 **Ao terminar, rode o modo conferência sobre o que você escreveu.** Manifesto novo
 não é exceção: é o primeiro cliente do conferidor.
 
