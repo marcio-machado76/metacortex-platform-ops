@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: orion-postgres
+  namespace: orion-prod
+  labels:
+    app.kubernetes.io/name: orion-postgres
+    app.kubernetes.io/instance: orion-prod
+    app.kubernetes.io/part-of: orion
+    app.kubernetes.io/managed-by: platform
+  annotations:
+    metacortex.io/owner: plataforma-sre
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: orion-postgres
+    app.kubernetes.io/instance: orion-prod
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres

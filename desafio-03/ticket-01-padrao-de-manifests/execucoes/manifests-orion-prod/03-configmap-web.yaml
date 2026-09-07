@@ -1,0 +1,25 @@
+# 3.3 aqui entra so o que NAO e sensivel. Usuario e senha do banco vem do
+# Secret orion-db, que nao e versionado.
+# Os nomes das chaves saem de src/index.py do fake-shop, nao de convencao:
+# DB_HOST, DB_NAME, DB_PORT (e DB_USER/DB_PASSWORD, que vao no Secret).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orion-web
+  namespace: orion-prod
+  labels:
+    app.kubernetes.io/name: orion-web
+    app.kubernetes.io/instance: orion-prod
+    app.kubernetes.io/part-of: orion
+    app.kubernetes.io/managed-by: platform
+  annotations:
+    metacortex.io/owner: plataforma-sre
+data:
+  DB_HOST: orion-postgres
+  DB_NAME: ecommerce
+  DB_PORT: "5432"
+  # exigido por src/entrypoint.sh, que roda `python -m flask db upgrade`
+  FLASK_APP: index.py
+  # exigido por GunicornPrometheusMetrics; o caminho precisa ser gravavel,
+  # o que colide com readOnlyRootFilesystem e obriga o emptyDir do Deployment
+  PROMETHEUS_MULTIPROC_DIR: /tmp/metrics

@@ -1,0 +1,22 @@
+# 2.5 PDB em prod, para workload com mais de uma replica.
+# Nao existe equivalente em dev: sobre replica unica, minAvailable: 1 bloqueia
+# qualquer drenagem de no — o objeto passa a impedir manutencao em vez de
+# proteger contra ela.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: orion-web
+  namespace: orion-prod
+  labels:
+    app.kubernetes.io/name: orion-web
+    app.kubernetes.io/instance: orion-prod
+    app.kubernetes.io/part-of: orion
+    app.kubernetes.io/managed-by: platform
+  annotations:
+    metacortex.io/owner: plataforma-sre
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: orion-web
+      app.kubernetes.io/instance: orion-prod

@@ -1,0 +1,16 @@
+2026-09-06T16:31:11-03:00	INFO	[secret] Secret scanning is enabled
+2026-09-06T16:31:11-03:00	INFO	[secret] Please see https://trivy.dev/docs/v0.74/guide/scanner/secret#recommendation for faster secret detection
+2026-09-06T16:31:11-03:00	INFO	Number of language-specific files	num=0
+2026-09-06T16:31:11-03:00	INFO	[report] No issues detected with scanner(s).	scanners=[secret]
+
+Report Summary
+
+┌────────┬──────┬─────────┐
+│ Target │ Type │ Secrets │
+├────────┼──────┼─────────┤
+│   -    │  -   │    -    │
+└────────┴──────┴─────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
