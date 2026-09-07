@@ -1,60 +1,91 @@
 # Desafio 03 — O parque da Metacortex
 
-Entrega dos quatro tickets. Cada pasta e autocontida: skill, insumos, codigo,
-documentos de spec e evidencia de execucao real do ticket correspondente.
+Quatro tickets: dois pedem skills que empacotem o método de operação da casa, dois pedem
+projetos entregues por inteiro. Duas regras valem do começo ao fim — **toda skill nasce de
+um fluxo que foi rodado**, e **nenhum dos dois projetos começa pelo código**.
 
 | Ticket | Entrega | Pasta |
 |---|---|---|
-| 01 | Skill do padrao de manifests | [`ticket-01-padrao-de-manifests/`](ticket-01-padrao-de-manifests/) |
+| 01 | Skill do padrão de manifests | [`ticket-01-padrao-de-manifests/`](ticket-01-padrao-de-manifests/) |
 | 02 | Skill de triagem no cluster | [`ticket-02-triagem-no-cluster/`](ticket-02-triagem-no-cluster/) |
-| 03 | Ferramenta de inventario e drift de VM | [`ticket-03-inventario-de-vm/`](ticket-03-inventario-de-vm/) |
+| 03 | Ferramenta de inventário e drift de VM | [`ticket-03-inventario-de-vm/`](ticket-03-inventario-de-vm/) |
 | 04 | Dashboard do cluster | [`ticket-04-dashboard-do-cluster/`](ticket-04-dashboard-do-cluster/) |
 
-## Duas regras que atravessam a entrega
+Cada pasta tem um `README.md` que cruza a lista "Entregue" do ticket com o arquivo que
+contém cada item.
 
-1. **Toda skill nasce de um fluxo que foi rodado**, nao de um chute. A origem de
-   cada skill esta registrada na pasta do seu ticket.
-2. **Nenhum dos dois projetos comeca pelo codigo.** O arco e
-   `brainstorm -> documentos de spec -> ciclo do OpenSpec -> implementacao -> validacao`.
+## O histórico é parte da entrega
 
-## Ambiente local
+Os commits estão na ordem em que o trabalho aconteceu, e nos dois projetos **o primeiro
+commit não tem uma linha de código**. Isso não é estilo: é a prova de que o arco foi
+percorrido na ordem que o desafio exige, e é o que um squash teria apagado.
 
-O repositorio e a raiz do projeto do agente. Na raiz existem, **fora do
-versionamento**:
+No Ticket 01, a medição do Trivy e a curadoria das regras estão commitadas **antes** do
+primeiro commit de skill. Na ordem inversa, a skill teria reimplementado o que já vinha
+pronto.
 
-| Caminho | O que e |
-|---|---|
-| `.mcp.json` | symlink para `ticket-02-triagem-no-cluster/mcp/.mcp.json` |
-| `.claude/skills/` | skills instaladas: as do fluxo de trabalho, as do OpenSpec e, quando existirem, as dos Tickets 01 e 02 |
-| `.claude/commands/opsx/` | comandos do OpenSpec |
-| `workloads/` | clones do kube-news, fake-shop e encontros-tech, so para leitura (commits registrados em `ticket-01-.../insumos/workloads.md`) |
+## Os quatro tickets são um sistema só
 
-### OpenSpec
+O que mais rendeu não foi nenhum ticket isolado, e sim onde eles se tocam:
 
-Cada projeto tem a sua propria raiz OpenSpec, dentro da pasta do ticket, para
-que os artefatos do ciclo fiquem junto do resto da entrega daquele ticket. O CLI
-resolve a raiz a partir do diretorio corrente, entao os comandos do OpenSpec
-precisam rodar de dentro da pasta do ticket:
+**A regra 1.4 atravessa três.** O padrão diz que o seletor do Service tem que casar com os
+rótulos do pod. No Ticket 02 ela é o Chamado 3 — um hífen de diferença, e o Service nasce
+sem destino. No Ticket 04 ela decide como a tela distingue *"sem endereço"* de *"tem
+endereço, nenhum pronto"*, o que só o `EndpointSlice` sabe responder.
 
-```bash
-cd desafio-03/ticket-03-inventario-de-vm   # ou ticket-04-dashboard-do-cluster
-openspec list
-```
+**A decisão de probe do Ticket 01 pagou no Ticket 04.** A readiness do kube-news foi
+apontada para `/` e não para `/ready`, porque o `/ready` do projeto só compara timestamps e
+responderia "pronto" com o banco desligado. Meses depois — dois tickets depois — foi a
+única coisa que denunciou um pod do fake-shop `Running`, com zero reinícios e zero eventos,
+servindo erro.
 
-Rodar da raiz do repositorio devolve "No OpenSpec root found" — e o
-comportamento esperado, nao um erro de configuracao.
+**"Quem impede é a ferramenta, não a instrução" aparece três vezes.** No Ticket 02 é o
+servidor MCP em `ALLOW_ONLY_READONLY_TOOLS`. No Ticket 03 é o usuário de coleta sem `sudo`.
+No Ticket 04 é o RBAC que nega todo verbo de escrita — e que, por não conceder `watch`, faz
+o próprio cluster recusar a alternativa que a decisão descartou.
 
-## Instalacao das skills
+**"Não sei" é dado, não erro.** O Ticket 03 inventou o veredito `nao_verificado` porque
+reportar como conforme seria mentira. O Ticket 04 herdou a forma num envelope de quatro
+estados, e é o que faz a tela degradar por construção quando falta permissão para um tipo
+de recurso.
 
-As skills sao versionadas em `ticket-01-.../skill/` e `ticket-02-.../skill/`.
-Para usa-las, aponte o escopo de projeto do agente para elas:
+## O que foi deliberadamente deixado de fora
+
+O desafio premia tanto o que se cobre quanto o que se recusa cobrir:
+
+- **O Bloco 4 do padrão** — oito verbetes de vocabulário, zero regra. Um terço da página.
+- **Reimplementar o Trivy** — as quatro regras que ele já cobre não foram reescritas.
+- **Script na skill de triagem** — script com acesso ao cluster carregaria credencial
+  própria e ficaria fora da garantia do servidor.
+- **`watch` no dashboard** — o eixo de carga favorece o watch; o que decide é a manutenção
+  de uma máquina de resync que um time de infra herda e não mexe.
+
+## Onde os erros ficaram registrados
+
+Nenhum documento foi reescrito como se sempre tivesse estado certo. As correções estão
+marcadas como correções, com o motivo:
+
+- `ticket-03-.../docs/01-comportamento.md` — quatro pontos que não sobreviveram ao contato
+  com o código, dois deles contratos entre módulos
+- `ticket-03-.../docs/03-divergencias-da-implementacao.md` — o que o agente entendeu
+  diferente do que foi escrito
+- `ticket-04-.../docs/03-divergencias-da-implementacao.md` — um critério de aceite que já
+  era falso quando foi escrito, com a ordem dos commits provando que não é trave movida
+  depois do resultado
+
+## Instalação das skills
+
+As duas skills são versionadas em `ticket-01-.../skill/` e `ticket-02-.../skill/`. Para
+usá-las, aponte o escopo de projeto do agente para elas:
 
 ```bash
 mkdir -p .claude/skills
-ln -s ../../desafio-03/ticket-01-padrao-de-manifests/skill .claude/skills/<nome-da-skill>
-ln -s ../../desafio-03/ticket-02-triagem-no-cluster/skill  .claude/skills/<nome-da-skill>
+ln -s ../../desafio-03/ticket-01-padrao-de-manifests/skill .claude/skills/padrao-de-manifests
+ln -s ../../desafio-03/ticket-02-triagem-no-cluster/skill  .claude/skills/triagem-de-cluster
 ```
 
-`.claude/` e `.mcp.json` ficam na raiz do repositorio mas fora do versionamento:
-sao estado de instalacao, nao artefato. A copia canonica do `.mcp.json`
-usado no Ticket 02 esta em `ticket-02-triagem-no-cluster/mcp/`.
+`.claude/` e o `.mcp.json` da raiz ficam fora do versionamento — são estado de instalação.
+A cópia canônica do `.mcp.json` é versionada em `ticket-02-.../mcp/`.
+
+O OpenSpec tem uma raiz por projeto, dentro da pasta do ticket: os comandos rodam **de
+dentro dela**, e da raiz do repositório respondem que não há raiz — comportamento esperado.
