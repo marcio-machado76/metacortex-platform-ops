@@ -1,0 +1,4 @@
+# Dependências da ferramenta de inventário e drift de VM.
+# Fixadas (versão exata) conforme proposal.md: "Fixadas em requirements.txt".
+paramiko==3.5.1
+PyYAML==6.0.2
