@@ -54,21 +54,55 @@ kind load docker-image registry.metacortex.io/nyx/postgres:16-alpine --name meta
 Os Secrets `nyx-db` e `orion-db` são criados por linha de comando, não versionados
 — é a decisão da skill do Ticket 01 sobre não deixar esqueleto de Secret no Git.
 
-## Achado 1 — o fake-shop também está sem Dockerfile
+## Achado 1 — os dois projetos Python perderam o Dockerfile, e o que separa é outra coisa
 
-O `estado-da-entrega.md` dizia para usar kube-news e fake-shop porque o
-`encontros-tech` teve o Dockerfile removido. **O fake-shop também teve.** O clone
-está em `a3fa74f`, cujo título é literalmente `Delete src/Dockerfile`, e o clone é
-raso — só esse commit.
+Este achado fica registrado aqui, no repositório, e não só no documento de
+continuidade que é externo à entrega e desaparece quando o desafio fecha.
 
-Isso não apareceu no Ticket 01 porque lá o projeto foi **lido**, nunca construído.
+O `estado-da-entrega.md` mandava usar kube-news e fake-shop, excluindo o
+`encontros-tech` porque *"teve o Dockerfile removido e não tem imagem publicada"*.
+A primeira metade dessa justificativa não separa nada:
 
-Resolvido recuperando o histórico e construindo sem tocar no clone:
+| Projeto | Linguagem | Dockerfile no HEAD | Recuperável do histórico | Imagem publicada |
+|---|---|---|---|---|
+| kube-news | Node | — (nunca precisou) | — | **sim**, `fabricioveronez/kube-news:v1` |
+| fake-shop | Python | **não** — `a3fa74f` "Delete src/Dockerfile" | sim, em `15f8d9d` | não |
+| encontros-tech | Python | **não** — `0f5bbad` "Removendo Docker" | sim, em `1c0388e` | não |
+
+**Os dois projetos Python perderam o Dockerfile, não só o `encontros-tech`.** E nos
+dois casos ele volta do histórico, então a remoção não é o que desqualifica
+ninguém.
+
+**O que realmente separa é a imagem publicada.** O kube-news tem uma, e por isso
+sobe sem passar por `docker build`. Os outros dois exigem construir — e foi
+exatamente o que este ticket precisou fazer para o fake-shop. Pelo mesmo critério,
+o `encontros-tech` teria sido igualmente viável; a escolha entre ele e o fake-shop
+era de conveniência, não de impedimento.
+
+## Por que passou batido no Ticket 01
+
+Porque lá os projetos foram **lidos, nunca construídos**. A skill do Ticket 01
+abre o repositório da aplicação para responder porta, rotas, variáveis de ambiente
+e escrita em disco — tudo isso sai do código-fonte, e nenhum desses passos toca o
+Dockerfile nem exige que a imagem exista.
+
+O Ticket 04 é o primeiro que precisa do artefato rodando, e é por isso que a
+lacuna só aparece agora. É a mesma lição do Ticket 03, em outro formato: o que a
+especificação não obriga a executar, ela não obriga a existir.
+
+## Como o fake-shop foi construído
+
+Recuperando o histórico e construindo por stdin, sem tocar no clone:
 
 ```bash
+cd workloads/fake-shop
 git fetch --unshallow
 git show 15f8d9d:src/Dockerfile | docker build -f- -t registry.metacortex.io/orion/web:v14 src/
+kind load docker-image registry.metacortex.io/orion/web:v14 --name metacortex-lab
 ```
+
+O clone estava **raso** — `git log` mostrava só o commit da remoção, o que faz o
+Dockerfile parecer perdido quando está a um `--unshallow` de distância.
 
 O Dockerfile recuperado não declara `USER`, então a imagem rodaria como root. O
 `runAsUser: 10001` do manifesto cobre isso — a regra 3.2 é cumprida pelo
