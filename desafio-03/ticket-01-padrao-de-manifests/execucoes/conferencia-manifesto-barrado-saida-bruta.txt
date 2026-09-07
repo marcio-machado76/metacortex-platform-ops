@@ -1,0 +1,533 @@
+==========================================
+COMANDO: python3 desafio-03/ticket-01-padrao-de-manifests/skill/scripts/conferir-padrao.py desafio-03/ticket-01-padrao-de-manifests/insumos/manifesto-barrado-nyx.yaml
+==========================================
+ERRO    [1.1] manifesto-barrado-nyx.yaml:Deployment/NyxAPI
+        nome 'NyxAPI' fora do kebab-case
+ERRO    [1.3] manifesto-barrado-nyx.yaml:Deployment/NyxAPI
+        faltam rotulos obrigatorios: app.kubernetes.io/name, app.kubernetes.io/instance, app.kubernetes.io/part-of, app.kubernetes.io/managed-by
+ERRO    [1.3] manifesto-barrado-nyx.yaml:Deployment/NyxAPI
+        template do pod sem os rotulos: app.kubernetes.io/name, app.kubernetes.io/instance, app.kubernetes.io/part-of, app.kubernetes.io/managed-by
+ERRO    [2.3] manifesto-barrado-nyx.yaml:Deployment/NyxAPI
+        replicas=1 em producao; o minimo e 2
+ERRO    [2.4] manifesto-barrado-nyx.yaml:Deployment/NyxAPI
+        producao exige RollingUpdate com maxUnavailable: 0
+ERRO    [3.4] manifesto-barrado-nyx.yaml:Deployment/NyxAPI
+        automountServiceAccountToken nao esta false no pod
+ERRO    [2.2] manifesto-barrado-nyx.yaml:Deployment/NyxAPI · container 'api'
+        faltam probes: readinessProbe, livenessProbe
+ERRO    [3.3] manifesto-barrado-nyx.yaml:Deployment/NyxAPI · container 'api'
+        credencial embutida em URL na variavel DATABASE_URL
+ERRO    [1.3] manifesto-barrado-nyx.yaml:Service/nyx-api
+        faltam rotulos obrigatorios: app.kubernetes.io/name, app.kubernetes.io/instance, app.kubernetes.io/part-of, app.kubernetes.io/managed-by
+ERRO    [1.4] manifesto-barrado-nyx.yaml:Service/nyx-api
+        seletor {'app': 'nyx-api'} nao casa com nenhum pod de 'nyx-prod' neste conjunto; o Service sobe sem reclamar e nasce sem endpoint
+AVISO   [1.5] manifesto-barrado-nyx.yaml:Deployment/NyxAPI
+        sem anotacao metacortex.io/owner
+AVISO   [3.5] manifesto-barrado-nyx.yaml:Deployment/NyxAPI
+        usa a ServiceAccount default do namespace
+AVISO   [1.5] manifesto-barrado-nyx.yaml:Service/nyx-api
+        sem anotacao metacortex.io/owner
+
+2 objetos · 10 erro(s) · 3 aviso(s) · 0 excecao(oes)
+Regras 2.1, 3.1, 3.2 e 3.6 nao sao conferidas aqui: rode `trivy config`.
+EXIT CODE: 1
+
+==========================================
+COMANDO: trivy config --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL desafio-03/ticket-01-padrao-de-manifests/insumos/manifesto-barrado-nyx.yaml
+==========================================
+2026-09-06T17:10:57-03:00	INFO	[misconfig] Misconfiguration scanning is enabled
+2026-09-06T17:10:57-03:00	INFO	[checks-client] Using existing checks from cache	path="/home/marcio/.cache/trivy/policy/content"
+2026-09-06T17:10:58-03:00	INFO	Detected config files	num=1
+
+Report Summary
+
+┌────────────────────────────┬────────────┬───────────────────┐
+│           Target           │    Type    │ Misconfigurations │
+├────────────────────────────┼────────────┼───────────────────┤
+│ manifesto-barrado-nyx.yaml │ kubernetes │        18         │
+└────────────────────────────┴────────────┴───────────────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+manifesto-barrado-nyx.yaml (kubernetes)
+=======================================
+Tests: 117 (SUCCESSES: 99, FAILURES: 18)
+Failures: 18 (UNKNOWN: 0, LOW: 10, MEDIUM: 5, HIGH: 3, CRITICAL: 0)
+
+KSV-0001 (MEDIUM): Container 'api' of Deployment 'NyxAPI' should set 'securityContext.allowPrivilegeEscalation' to false
+════════════════════════════════════════
+A program inside the container can elevate its own privileges and run as root, which might give the program control over the container and node.
+
+See https://avd.aquasec.com/misconfig/ksv-0001
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0003 (LOW): Container 'api' of Deployment 'NyxAPI' should add 'ALL' to 'securityContext.capabilities.drop'
+════════════════════════════════════════
+The container should drop all default capabilities and add only those that are needed for its execution.
+
+See https://avd.aquasec.com/misconfig/ksv-0003
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0004 (LOW): Container 'api' of 'deployment' 'NyxAPI' in 'nyx-prod' namespace should set securityContext.capabilities.drop
+════════════════════════════════════════
+Security best practices require containers to run with minimal required capabilities.
+
+See https://avd.aquasec.com/misconfig/ksv-0004
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0011 (LOW): Container 'api' of Deployment 'NyxAPI' should set 'resources.limits.cpu'
+════════════════════════════════════════
+Enforcing CPU limits prevents DoS via resource exhaustion.
+
+See https://avd.aquasec.com/misconfig/ksv-0011
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0012 (MEDIUM): Container 'api' of Deployment 'NyxAPI' should set 'securityContext.runAsNonRoot' to true
+════════════════════════════════════════
+Force the running image to run as a non-root user to ensure least privileges.
+
+See https://avd.aquasec.com/misconfig/ksv-0012
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0013 (MEDIUM): Container 'api' of Deployment 'NyxAPI' should specify an image tag
+════════════════════════════════════════
+It is best to avoid using the ':latest' image tag when deploying containers in production. Doing so makes it hard to track which version of the image is running, and hard to roll back the version.
+
+See https://avd.aquasec.com/misconfig/ksv-0013
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0014 (HIGH): Container 'api' of Deployment 'NyxAPI' should set 'securityContext.readOnlyRootFilesystem' to true
+════════════════════════════════════════
+An immutable root file system prevents applications from writing to their local disk. This can limit intrusions, as attackers will not be able to tamper with the file system or write foreign executables to disk.
+
+See https://avd.aquasec.com/misconfig/ksv-0014
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0015 (LOW): Container 'api' of Deployment 'NyxAPI' should set 'resources.requests.cpu'
+════════════════════════════════════════
+When containers have resource requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention.
+
+See https://avd.aquasec.com/misconfig/ksv-0015
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0016 (LOW): Container 'api' of Deployment 'NyxAPI' should set 'resources.requests.memory'
+════════════════════════════════════════
+When containers have memory requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention.
+
+See https://avd.aquasec.com/misconfig/ksv-0016
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0018 (LOW): Container 'api' of Deployment 'NyxAPI' should set 'resources.limits.memory'
+════════════════════════════════════════
+Enforcing memory limits prevents DoS via resource exhaustion.
+
+See https://avd.aquasec.com/misconfig/ksv-0018
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0020 (LOW): Container 'api' of Deployment 'NyxAPI' should set 'securityContext.runAsUser' > 10000
+════════════════════════════════════════
+Force the container to run with user ID > 10000 to avoid conflicts with the host’s user table.
+
+See https://avd.aquasec.com/misconfig/ksv-0020
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0021 (LOW): Container 'api' of Deployment 'NyxAPI' should set 'securityContext.runAsGroup' > 10000
+════════════════════════════════════════
+Force the container to run with group ID > 10000 to avoid conflicts with the host’s user table.
+
+See https://avd.aquasec.com/misconfig/ksv-0021
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0030 (LOW): Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'
+════════════════════════════════════════
+According to pod security standard 'Seccomp', the RuntimeDefault seccomp profile must be required, or allow specific additional profiles.
+
+See https://avd.aquasec.com/misconfig/ksv-0030
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0104 (MEDIUM): container "api" of deployment "NyxAPI" in "nyx-prod" namespace should specify a seccomp profile
+════════════════════════════════════════
+A program inside the container can bypass Seccomp protection policies.
+
+See https://avd.aquasec.com/misconfig/ksv-0104
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0106 (LOW): container should drop all
+════════════════════════════════════════
+Containers must drop ALL capabilities, and are only permitted to add back the NET_BIND_SERVICE capability.
+
+See https://avd.aquasec.com/misconfig/ksv-0106
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0118 (HIGH): container NyxAPI in nyx-prod namespace is using the default security context
+════════════════════════════════════════
+Security context controls the allocation of security parameters for the pod/container/volume, ensuring the appropriate level of protection. Relying on default security context may expose vulnerabilities to potential attacks that rely on privileged access.
+
+See https://avd.aquasec.com/misconfig/ksv-0118
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0118 (HIGH): deployment NyxAPI in nyx-prod namespace is using the default security context, which allows root privileges
+════════════════════════════════════════
+Security context controls the allocation of security parameters for the pod/container/volume, ensuring the appropriate level of protection. Relying on default security context may expose vulnerabilities to potential attacks that rely on privileged access.
+
+See https://avd.aquasec.com/misconfig/ksv-0118
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:19-27
+────────────────────────────────────────
+  19 ┌     spec:
+  20 │       containers:
+  21 │         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+KSV-0125 (MEDIUM): Container api in deployment NyxAPI (namespace: nyx-prod) uses an image from an untrusted registry.
+════════════════════════════════════════
+Ensure that all containers use images only from trusted registry domains.
+
+See https://avd.aquasec.com/misconfig/ksv-0125
+────────────────────────────────────────
+ manifesto-barrado-nyx.yaml:21-27
+────────────────────────────────────────
+  21 ┌         - name: api
+  22 │           image: registry.metacortex.io/nyx/api:latest
+  23 │           ports:
+  24 │             - containerPort: 8080
+  25 │           env:
+  26 │             - name: DATABASE_URL
+  27 └               value: "postgres://nyx:s3nh4-do-banco@pg.nyx-prod.svc:5432/nyx"
+────────────────────────────────────────
+
+
+EXIT CODE: 0
+
+
+==========================================
+INVESTIGACAO DO PROJETO workloads/kube-news (leitura, secao 3 do relatorio)
+==========================================
+--- COMANDO: grep -rn "DATABASE_URL" workloads/kube-news/src ---
+(nenhuma ocorrencia)
+
+--- COMANDO: grep -n "DB_" workloads/kube-news/src/models/post.js ---
+8:const DB_DATABASE = process.env.DB_DATABASE || "kubedevnews";
+9:const DB_USERNAME = process.env.DB_USERNAME || "kubedevnews";
+10:const DB_PASSWORD = process.env.DB_PASSWORD || "Pg#123";
+11:const DB_HOST = process.env.DB_HOST || "localhost";
+12:const DB_PORT = parseInt(process.env.DB_PORT, 10) || 5432; 
+13:const DB_SSL_REQUIRE =  strToBool(process.env.DB_SSL_REQUIRE) || false;
+15:const seque = new sequelize.Sequelize(DB_DATABASE, DB_USERNAME, DB_PASSWORD, {
+16:    host: DB_HOST,
+17:    port: DB_PORT,
+20:      ssl: DB_SSL_REQUIRE ? {
+
+--- COMANDO: grep -i -E "kubernetes|k8s|@kubernetes" workloads/kube-news/src/package.json workloads/kube-news/src/package-lock.json ---
+(nenhuma ocorrencia)
+
+--- COMANDO: grep -rn "fs\.|writeFile|/tmp|createWriteStream|multer|upload" workloads/kube-news/src ---
+(nenhuma ocorrencia)
+
+--- COMANDO: cat workloads/kube-news/src/system-life.js (rotas de health/ready) ---
+var express = require('express');
+var router = express.Router();
+const os = require('os')
+
+let isHealth = true;
+let readTime = new Date(Date.now());
+let isRead = () => { 
+    return readTime < new Date(Date.now());
+};
+
+router.get('/ready', (req, res) => {
+   
+    if (isRead()) {
+        res.statusCode = 200;
+        return res.send('Ok');
+    } else {
+        res.statusCode = 500;
+        return res.send('');
+    }   
+});
+
+router.get('/health', (req, res) => {
+    
+    res.json({
+        state: 'up',
+        machine: os.hostname()
+    });
+});
+
+router.put('/unhealth', (req, res) => {
+
+    isHealth = false;
+    res.send("OK");
+});
+
+router.put('/unreadyfor/:seconds', (req, res) => {
+    
+    const dado = new Date(new Date(Date.now()).getTime() + (1000 * req.params.seconds));
+    readTime = dado;    
+    res.send("OK");
+});
+
+var healthMid = function (req, res, next) {
+    
+    if (isHealth) {
+        next();
+    } else {
+        res.statusCode = 500;
+        return res.send('');
+    }   
+};
+
+exports.routers = router;
+exports.middlewares = { healthMid };
+--- COMANDO: cat workloads/kube-news/src/models/post.js (conexao com o banco) ---
+const sequelize = require('sequelize');
+
+// Função para converter string em boolean
+const strToBool = (value) => {
+  return value === 'true';
+};
+
+const DB_DATABASE = process.env.DB_DATABASE || "kubedevnews";
+const DB_USERNAME = process.env.DB_USERNAME || "kubedevnews";
+const DB_PASSWORD = process.env.DB_PASSWORD || "Pg#123";
+const DB_HOST = process.env.DB_HOST || "localhost";
+const DB_PORT = parseInt(process.env.DB_PORT, 10) || 5432; 
+const DB_SSL_REQUIRE =  strToBool(process.env.DB_SSL_REQUIRE) || false;
+
+const seque = new sequelize.Sequelize(DB_DATABASE, DB_USERNAME, DB_PASSWORD, {
+    host: DB_HOST,
+    port: DB_PORT,
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: DB_SSL_REQUIRE ? {
+        require: true,
+        rejectUnauthorized: false
+      } : false
+    }
+  });
+
+class Post extends sequelize.Model {
+  
+  save() {
+    
+    console.log('Entrou')
+    super.save();
+  }
+}
+
+Post.init({
+  title: {
+    type: sequelize.DataTypes.STRING,
+    require: true
+  },
+  summary: {
+    type: sequelize.DataTypes.STRING,
+    require: true
+  },
+  publishDate: {
+    type: sequelize.DataTypes.DATEONLY,
+    require: true
+  },
+  content: {
+    type: sequelize.DataTypes.STRING(2000),
+    require: true
+  },
+}, {
+  sequelize: seque, // We need to pass the connection instance
+  modelName: 'Post' // We need to choose the model name
+})
+
+exports.initDatabase = () => {
+    seque.sync({ alter: true })
+}
+
+exports.Post = Post;
+
+
+--- COMANDO: find workloads/kube-news -iname "Dockerfile*" -not -path "*/.git/*" ---
+

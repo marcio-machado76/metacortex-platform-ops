@@ -1,0 +1,38 @@
+{
+  "eval_name": "eval-2-chamado-2-tag-inexistente",
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "Identifica que a tag v1.14.2 nao existe no registry",
+      "passed": true,
+      "evidence": "causa declarada na primeira frase"
+    },
+    {
+      "text": "Cita a mensagem crua do runtime como evidencia (not found / failed to resolve reference)",
+      "passed": true,
+      "evidence": "mensagem completa do containerd transcrita"
+    },
+    {
+      "text": "Usa restartCount igual a zero para concluir que o container nunca chegou a rodar",
+      "passed": true,
+      "evidence": "restartCount: 0 e lastState vazio usados como raciocinio explicito"
+    },
+    {
+      "text": "Explica por que o pod nao trocou: o rollout nao avanca (Available=False ou replicas indisponiveis)",
+      "passed": true,
+      "evidence": "Available=False e ProgressDeadlineExceeded citados"
+    },
+    {
+      "text": "Registra que o orion-postgres ao lado esta saudavel",
+      "passed": true,
+      "evidence": "secao 'saudavel ao lado'"
+    },
+    {
+      "text": "Descreve a correcao sem aplica-la: nenhuma escrita no cluster",
+      "passed": true,
+      "evidence": "correcao descrita, nenhuma escrita"
+    }
+  ],
+  "passed": 6,
+  "total": 6
+}

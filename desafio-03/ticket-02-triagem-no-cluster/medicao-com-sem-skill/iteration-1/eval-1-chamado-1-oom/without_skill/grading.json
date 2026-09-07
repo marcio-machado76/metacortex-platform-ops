@@ -1,0 +1,38 @@
+{
+  "eval_name": "eval-1-chamado-1-oom",
+  "configuration": "without_skill",
+  "expectations": [
+    {
+      "text": "Identifica OOMKilled como o motivo da terminacao do container",
+      "passed": true,
+      "evidence": "Reason: OOMKilled / Exit Code 137 no describe"
+    },
+    {
+      "text": "Cita o limite de memoria declarado (24Mi) como a causa, e nao apenas o sintoma",
+      "passed": true,
+      "evidence": "limits.memory 24Mi apontado como causa raiz"
+    },
+    {
+      "text": "Aponta lastState.terminated (ou exitCode 137) como o campo que fecha o diagnostico",
+      "passed": true,
+      "evidence": "Last State: Terminated citado"
+    },
+    {
+      "text": "Registra que o nyx-postgres ao lado esta saudavel, descartando a dependencia",
+      "passed": true,
+      "evidence": "secao 'Descartando outras causas' cobre o banco"
+    },
+    {
+      "text": "Nao conclui a partir do log do container, que esta vazio por construcao no OOM",
+      "passed": true,
+      "evidence": "registra logs vazios e explica o porque"
+    },
+    {
+      "text": "Descreve a correcao sem aplica-la: nenhuma escrita no cluster",
+      "passed": true,
+      "evidence": "recomendacao explicitamente nao aplicada"
+    }
+  ],
+  "passed": 6,
+  "total": 6
+}

@@ -1,0 +1,35 @@
+# 3.3 aqui entra so o que NAO e sensivel. DATABASE_URL inteira vai no Secret
+# helio-web-db (decisao 6): o encontros-tech le UMA url de conexao ja com
+# usuario e senha embutidos (src/core/settings.py), nao variaveis separadas de
+# host/usuario/senha como o fake-shop — entao nao da para separar so a senha.
+# Nomes de chave saem de src/core/settings.py, nao de convencao.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: helio-web
+  namespace: helio-prod
+  labels:
+    app.kubernetes.io/name: helio-web
+    app.kubernetes.io/instance: helio-prod
+    app.kubernetes.io/part-of: helio
+    app.kubernetes.io/managed-by: platform
+  annotations:
+    metacortex.io/owner: plataforma-sre
+data:
+  APP_TITLE: "Encontros Tech"
+  HOST: "0.0.0.0"
+  PORT: "8000"
+  DEBUG: "false"
+  LOG_LEVEL: "INFO"
+  # "colored" (default do settings.py) so faz sentido em tty de dev; em prod os
+  # logs vao para stdout do container, sem tty — "simple" evita codigo ANSI no
+  # coletor de log.
+  LOG_FORMAT: "simple"
+  SERVICE_NAME: "encontros-tech"
+  SERVICE_VERSION: "v1"
+  # exigido por PrometheusMetrics(app) em modo multiprocess (src/main.py chama
+  # os.makedirs nele). Sem esta variavel NO AMBIENTE do processo, a biblioteca
+  # nao entra em modo multiprocess e o /metrics de cada worker do gunicorn fica
+  # incompleto. O caminho precisa ser gravavel, o que colide com
+  # readOnlyRootFilesystem e obriga o emptyDir do Deployment. Ver decisao 3.
+  PROMETHEUS_MULTIPROC_DIR: /tmp/prometheus_multiproc

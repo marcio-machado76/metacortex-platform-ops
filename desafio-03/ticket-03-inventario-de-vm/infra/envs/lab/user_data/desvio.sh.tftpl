@@ -1,0 +1,59 @@
+#!/bin/bash
+# Prepara a VM para ficar FORA do baseline, com desvio em cada severidade.
+set -euxo pipefail
+export DEBIAN_FRONTEND=noninteractive
+
+# Usuario da coleta: sem sudo, igual ao host conforme.
+useradd --create-home --shell /bin/bash roster
+install -d -m 700 -o roster -g roster /home/roster/.ssh
+# chaves_ssh.emitidas_por (critico): a segunda chave nao foi emitida pela plataforma
+cat > /home/roster/.ssh/authorized_keys <<'CHAVES'
+${chave_platform}
+${chave_nao_emitida}
+CHAVES
+chown roster:roster /home/roster/.ssh/authorized_keys
+chmod 600 /home/roster/.ssh/authorized_keys
+
+# servicos.proibidos (alto): rpcbind.socket ativo
+apt-get update
+apt-get install -y rpcbind
+systemctl enable --now rpcbind.socket
+
+# servicos.ativos (alto): containerd e chrony ficam ausentes de proposito.
+# O host segue com systemd-timesyncd, o que muda ntp.mecanismo mas mantem
+# ntp.sincronizado verdadeiro.
+
+# portas_em_escuta.somente_rede_interna (critico): 9100 exposto em 0.0.0.0
+NE_VERSAO=1.12.1
+curl -fsSL -o /tmp/node_exporter.tar.gz \
+  "https://github.com/prometheus/node_exporter/releases/download/v$NE_VERSAO/node_exporter-$NE_VERSAO.linux-amd64.tar.gz"
+tar -xzf /tmp/node_exporter.tar.gz -C /tmp
+install -m 0755 "/tmp/node_exporter-$NE_VERSAO.linux-amd64/node_exporter" /usr/local/bin/node_exporter
+useradd --system --no-create-home --shell /usr/sbin/nologin node_exporter
+cat > /etc/systemd/system/node_exporter.service <<'UNIT'
+[Unit]
+Description=Prometheus Node Exporter
+After=network-online.target
+
+[Service]
+User=node_exporter
+ExecStart=/usr/local/bin/node_exporter --web.listen-address=0.0.0.0:9100
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+systemctl daemon-reload
+systemctl enable --now node_exporter
+
+# swap.habilitado (critico): swap de 4G ligado e persistente
+fallocate -l 4G /swapfile
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+echo '/swapfile none swap sw 0 0' >> /etc/fstab
+
+# ssh.login_de_root: mantido no padrao da imagem Ubuntu (prohibit-password).
+# kernel.versao_minima (medio): o 22.04 entrega kernel 5.15, abaixo do minimo 6.5.
+
+touch /var/lib/metacortex-preparado

@@ -1,0 +1,13 @@
+{
+  "eval_id": 2,
+  "eval_name": "chamado-2-tag-inexistente",
+  "prompt": "subimos a versao nova do fake-shop no orion-stg e a loja parou. o deploy foi aplicado mas o pod nunca trocou. o que aconteceu?",
+  "assertions": [
+    "Identifica que a tag v1.14.2 nao existe no registry",
+    "Cita a mensagem crua do runtime como evidencia (not found / failed to resolve reference)",
+    "Usa restartCount igual a zero para concluir que o container nunca chegou a rodar",
+    "Explica por que o pod nao trocou: o rollout nao avanca (Available=False ou replicas indisponiveis)",
+    "Registra que o orion-postgres ao lado esta saudavel",
+    "Descreve a correcao sem aplica-la: nenhuma escrita no cluster"
+  ]
+}

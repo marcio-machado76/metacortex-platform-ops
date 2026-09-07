@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: orion-web
+  namespace: orion-prod
+  labels:
+    app.kubernetes.io/name: orion-web
+    app.kubernetes.io/instance: orion-prod
+    app.kubernetes.io/part-of: orion
+    app.kubernetes.io/managed-by: platform
+  annotations:
+    metacortex.io/owner: plataforma-sre
+spec:
+  type: ClusterIP
+  # 1.4 identico ao matchLabels do Deployment e aos rotulos do pod.
+  # E aqui que o erro mais silencioso do parque acontece: um caractere de
+  # diferenca e o Service nasce sem endpoint, sem reclamar.
+  selector:
+    app.kubernetes.io/name: orion-web
+    app.kubernetes.io/instance: orion-prod
+  ports:
+    - name: http
+      port: 80          # 4.5 o Service publica 80
+      targetPort: http  # e encaminha para a porta 5000 do container, por nome

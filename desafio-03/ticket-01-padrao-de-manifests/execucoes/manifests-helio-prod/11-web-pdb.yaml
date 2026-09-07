@@ -1,0 +1,19 @@
+# 2.5 PDB em prod, para workload com mais de uma replica (recomendado, nao obrigatorio).
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: helio-web
+  namespace: helio-prod
+  labels:
+    app.kubernetes.io/name: helio-web
+    app.kubernetes.io/instance: helio-prod
+    app.kubernetes.io/part-of: helio
+    app.kubernetes.io/managed-by: platform
+  annotations:
+    metacortex.io/owner: plataforma-sre
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: helio-web
+      app.kubernetes.io/instance: helio-prod

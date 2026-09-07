@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: helio-web
+  namespace: helio-prod
+  labels:
+    app.kubernetes.io/name: helio-web
+    app.kubernetes.io/instance: helio-prod
+    app.kubernetes.io/part-of: helio
+    app.kubernetes.io/managed-by: platform
+  annotations:
+    metacortex.io/owner: plataforma-sre
+spec:
+  type: ClusterIP
+  # 1.4 identico ao matchLabels do Deployment e aos rotulos do pod.
+  selector:
+    app.kubernetes.io/name: helio-web
+    app.kubernetes.io/instance: helio-prod
+  ports:
+    - name: http
+      port: 80          # Service publica 80
+      targetPort: http  # e encaminha para a porta 8000 do container, por nome

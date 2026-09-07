@@ -1,0 +1,115 @@
+# Banco do cliente orion.
+#
+# EXCECAO REGISTRADA a regra 2.3 (replicas >= 2 em prod).
+# O padrao exige duas replicas em producao sem qualificar o tipo de carga. Para
+# um banco de escrita unica a regra nao tem como ser cumprida no espirito:
+# subir uma segunda replica de Postgres com volume proprio nao produz
+# disponibilidade, produz um segundo banco divergindo do primeiro.
+# A secao Excecoes do padrao exige aprovacao escrita e prazo de validade para
+# desvio de regra obrigatoria — as anotacoes abaixo carregam os dois.
+# Ver ../DECISOES.md, decisao 9.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: orion-postgres
+  namespace: orion-prod
+  labels:
+    app.kubernetes.io/name: orion-postgres
+    app.kubernetes.io/instance: orion-prod
+    app.kubernetes.io/part-of: orion
+    app.kubernetes.io/managed-by: platform
+  annotations:
+    metacortex.io/owner: plataforma-sre
+    metacortex.io/excecao-regra: "2.3"
+    metacortex.io/excecao-motivo: "banco de escrita unica; replica adicional divergiria em vez de dar disponibilidade"
+    metacortex.io/excecao-aprovada-por: seguranca-e-compliance
+    metacortex.io/excecao-valida-ate: "2027-03-31"
+spec:
+  serviceName: orion-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: orion-postgres
+      app.kubernetes.io/instance: orion-prod
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: orion-postgres
+        app.kubernetes.io/instance: orion-prod
+        app.kubernetes.io/part-of: orion
+        app.kubernetes.io/managed-by: platform
+    spec:
+      serviceAccountName: orion-postgres
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        # 70 e o dono dos arquivos do banco na imagem alpine. O runAsUser: 10001
+        # do exemplo da regra 3.2 e ilustrativo — o requisito e nao rodar como
+        # root, e isso esta atendido. Ver decisao 10.
+        runAsUser: 70
+        runAsGroup: 70
+        fsGroup: 70
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: postgres              # 1.6
+          image: registry.metacortex.io/orion/postgres:16-alpine  # 3.1, 3.7
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: ecommerce
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef: {name: orion-db, key: username}
+            - name: POSTGRES_PASSWORD   # 3.3
+              valueFrom:
+                secretKeyRef: {name: orion-db, key: password}
+            - name: PGDATA
+              # subdiretorio proprio: montado na raiz do volume, o initdb
+              # recusa por causa do lost+found
+              value: /var/lib/postgresql/data/pgdata
+          startupProbe:
+            exec: {command: ["pg_isready", "-U", "ecommerce", "-d", "ecommerce"]}
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:                # 2.2
+            exec: {command: ["pg_isready", "-U", "ecommerce", "-d", "ecommerce"]}
+            periodSeconds: 20
+            timeoutSeconds: 5
+          readinessProbe:
+            exec: {command: ["pg_isready", "-U", "ecommerce", "-d", "ecommerce"]}
+            periodSeconds: 10
+            timeoutSeconds: 3
+          resources:                    # 2.1
+            requests: {cpu: 100m, memory: 256Mi}
+            limits:   {cpu: 500m, memory: 512Mi}
+          securityContext:              # 3.2
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - {name: dados, mountPath: /var/lib/postgresql/data}
+            # com filesystem raiz somente-leitura, o Postgres ainda precisa
+            # escrever o socket unix e temporarios
+            - {name: run, mountPath: /var/run/postgresql}
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - {name: run, emptyDir: {}}
+        - {name: tmp, emptyDir: {}}
+      terminationGracePeriodSeconds: 60  # 2.6 banco precisa de mais que 30s para o shutdown limpo
+  volumeClaimTemplates:
+    - metadata:
+        name: dados
+        labels:
+          app.kubernetes.io/name: orion-postgres
+          app.kubernetes.io/instance: orion-prod
+          app.kubernetes.io/part-of: orion
+          app.kubernetes.io/managed-by: platform
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 2Gi

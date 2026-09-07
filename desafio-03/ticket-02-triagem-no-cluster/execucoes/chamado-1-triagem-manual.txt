@@ -1,0 +1,54 @@
+############ CHAMADO 1 — nyx-prod: a API do kube-news reinicia sozinha ############
+
+--- 1. pods do namespace (fase, prontidao, reinicios) ---
+NAME                            READY   STATUS      RESTARTS      AGE   IP           NODE                           NOMINATED NODE   READINESS GATES
+nyx-api-79c5f4d8d7-2w5kd        0/1     OOMKilled   3 (32s ago)   62s   10.244.0.7   metacortex-lab-control-plane   <none>           <none>
+nyx-api-79c5f4d8d7-hkw2t        0/1     Running     3 (30s ago)   62s   10.244.0.8   metacortex-lab-control-plane   <none>           <none>
+nyx-postgres-5877b89bf8-5g58h   1/1     Running     0             62s   10.244.0.6   metacortex-lab-control-plane   <none>           <none>
+
+--- 2. detalhe do container da api (estado atual e estado anterior) ---
+nyx-api-79c5f4d8d7-2w5kd
+  ready=false  restarts=3
+  state={"terminated":{"containerID":"containerd://009f9be98f4c65df07dd45a556669f4f0eb2b12a6bd2de4c64a92901efa64432","exitCode":137,"finishedAt":"2026-09-06T19:07:57Z","reason":"OOMKilled","startedAt":"2026-09-06T19:07:56Z"}}
+  lastState={"terminated":{"containerID":"containerd://28d3e23161aac4c932f3894fbd8b322dc8ae6e5025ddaff34a364b2740484378","exitCode":137,"finishedAt":"2026-09-06T19:07:30Z","reason":"OOMKilled","startedAt":"2026-09-06T19:07:28Z"}}
+nyx-api-79c5f4d8d7-hkw2t
+  ready=false  restarts=3
+  state={"running":{"startedAt":"2026-09-06T19:08:01Z"}}
+  lastState={"terminated":{"containerID":"containerd://6d95e8eb943ea7247ccb3ea70c595eb977c83302f1b07f3ea252d2128543d3d6","exitCode":137,"finishedAt":"2026-09-06T19:07:32Z","reason":"OOMKilled","startedAt":"2026-09-06T19:07:30Z"}}
+
+--- 3. limites declarados ---
+{"limits":{"cpu":"200m","memory":"24Mi"},"requests":{"cpu":"50m","memory":"16Mi"}}
+
+--- 4. eventos do namespace ---
+Normal    Scheduled           nyx-postgres-5877b89bf8-5g58h   1     Successfully assigned nyx-prod/nyx-postgres-5877b89bf8-5g58h to metacortex-lab-control-plane
+Normal    Scheduled           nyx-api-79c5f4d8d7-hkw2t        1     Successfully assigned nyx-prod/nyx-api-79c5f4d8d7-hkw2t to metacortex-lab-control-plane
+Normal    Pulled              nyx-postgres-5877b89bf8-5g58h   1     Successfully pulled image "postgres:16-alpine" in 5.546s (5.546s including waiting). Image size: 116075089 bytes.
+Normal    Started             nyx-postgres-5877b89bf8-5g58h   1     Started container postgres
+Normal    Created             nyx-postgres-5877b89bf8-5g58h   1     Created container postgres
+Normal    Pulled              nyx-api-79c5f4d8d7-hkw2t        1     Successfully pulled image "fabricioveronez/kube-news:v1" in 2.002s (7.475s including waiting). Image size: 195372933 bytes.
+Normal    Pulled              nyx-api-79c5f4d8d7-2w5kd        1     Successfully pulled image "fabricioveronez/kube-news:v1" in 842ms (8.309s including waiting). Image size: 195372933 bytes.
+Warning   BackOff             nyx-api-79c5f4d8d7-hkw2t        5     Back-off restarting failed container api in pod nyx-api-79c5f4d8d7-hkw2t_nyx-prod(fff2c8b6-71e2-4ae4-ae6d-00fb8464c611)
+Normal    Pulled              nyx-api-79c5f4d8d7-2w5kd        3     Container image "fabricioveronez/kube-news:v1" already present on machine
+Normal    Started             nyx-api-79c5f4d8d7-2w5kd        4     Started container api
+Normal    Created             nyx-api-79c5f4d8d7-2w5kd        4     Created container api
+Warning   BackOff             nyx-api-79c5f4d8d7-2w5kd        6     Back-off restarting failed container api in pod nyx-api-79c5f4d8d7-2w5kd_nyx-prod(4d591fb9-db02-4b15-a96f-8734e99a7d34)
+Normal    Pulled              nyx-api-79c5f4d8d7-hkw2t        3     Container image "fabricioveronez/kube-news:v1" already present on machine
+Normal    Started             nyx-api-79c5f4d8d7-hkw2t        4     Started container api
+Normal    Created             nyx-api-79c5f4d8d7-hkw2t        4     Created container api
+
+--- 5. o banco ao lado esta de pe? ---
+nyx-postgres-5877b89bf8-5g58h   true   0
+
+--- 6. o Service tem endpoint? ---
+metadata:
+  creationTimestamp: "2026-09-06T19:07:00Z"
+  name: nyx-api
+  namespace: nyx-prod
+  resourceVersion: "2458"
+  uid: a93def81-f10b-406f-93f8-b5dfc842d066
+subsets:
+- notReadyAddresses:
+  - ip: 10.244.0.7
+    nodeName: metacortex-lab-control-plane
+    targetRef:
+      kind: Pod

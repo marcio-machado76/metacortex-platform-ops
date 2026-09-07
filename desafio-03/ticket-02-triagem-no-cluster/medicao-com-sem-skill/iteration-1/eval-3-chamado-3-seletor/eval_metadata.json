@@ -1,0 +1,13 @@
+{
+  "eval_id": 3,
+  "eval_name": "chamado-3-seletor",
+  "prompt": "o kube-news do nyx-stg esta respondendo 503 pra quem chama de fora. a aplicacao parece de pe. o que esta acontecendo?",
+  "assertions": [
+    "Identifica a divergencia entre o seletor do Service e os rotulos do pod, citando os dois valores",
+    "Usa a ausencia de endereco no Endpoints ou EndpointSlice como evidencia",
+    "Reconhece explicitamente que pods, deployment e eventos estao saudaveis",
+    "Nao atribui a causa ao reinico isolado de um dos pods, que e ruido sem relacao com o 503",
+    "Chega a causa cruzando dois objetos, e nao aprofundando em uma fonte so",
+    "Descreve a correcao sem aplica-la: nenhuma escrita no cluster"
+  ]
+}

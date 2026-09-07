@@ -1,0 +1,124 @@
+# encontros-tech do cliente helio, ambiente de producao.
+# Cada decisao que nao sai do padrao esta numerada em ../DECISOES.md.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helio-web                      # 1.1 kebab-case
+  namespace: helio-prod                # 1.2
+  labels:                              # 1.3
+    app.kubernetes.io/name: helio-web
+    app.kubernetes.io/instance: helio-prod
+    app.kubernetes.io/part-of: helio
+    app.kubernetes.io/managed-by: platform
+  annotations:                         # 1.5
+    metacortex.io/owner: plataforma-sre
+    # sem metacortex.io/runbook: nao existe runbook para este workload ainda —
+    # e o primeiro deploy em producao. Ver DECISOES.md, decisao 7.
+spec:
+  replicas: 2                          # 2.3 minimo em prod
+  strategy:                            # 2.4
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    # 1.4 o seletor e imutavel apos a criacao, entao ele carrega so os dois
+    # rotulos que nao mudam. managed-by fica fora porque o proprio padrao
+    # prevê troca de valor (platform | argocd | helm).
+    matchLabels:
+      app.kubernetes.io/name: helio-web
+      app.kubernetes.io/instance: helio-prod
+  template:
+    metadata:
+      labels:                          # 1.3, e o par exato do seletor acima
+        app.kubernetes.io/name: helio-web
+        app.kubernetes.io/instance: helio-prod
+        app.kubernetes.io/part-of: helio
+        app.kubernetes.io/managed-by: platform
+    spec:
+      serviceAccountName: helio-web    # 3.5
+      automountServiceAccountToken: false  # 3.4
+      securityContext:
+        # 3.2, parte de POD. Os campos abaixo so existem neste nivel.
+        # runAsUser/Group: 10001 e ilustracao do padrao, nao piso — o
+        # Dockerfile do projeto (removido no commit lido, recuperado do
+        # historico do git) usava `FROM python` sem USER, ou seja, a imagem
+        # roda como root por padrao e ninguem testou UID 10001 contra os
+        # arquivos copiados para /app. Risco aceito e declarado na decisao 2.
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          # nao esta na regra 3.2, e sem ele o Pod Security restricted recusa
+          # o pod na admissao (o namespace ja declara enforce: restricted).
+          # Ver DECISOES.md, decisao 8.
+          type: RuntimeDefault
+      containers:
+        - name: web                    # 1.6 componente unico: serve paginas e API no mesmo processo Flask
+          # 3.1 tag imutavel · 3.7 registry do parque.
+          # v1 e placeholder: nao existe pipeline de build publicando esta
+          # imagem hoje (decisao 1) — confirmar tag/digest real antes do apply.
+          image: registry.metacortex.io/helio/encontros-tech:v1
+          ports:
+            - name: http
+              containerPort: 8000      # settings.py: PORT=8000 default; confere com o CMD do Dockerfile removido
+          envFrom:
+            - configMapRef:
+                name: helio-web
+          env:
+            # 3.3 a url de conexao inteira e credencial; entra por secretKeyRef
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef: {name: helio-web-db, key: DATABASE_URL}
+          # 2.2 as duas probes, apontando para endpoints que a aplicacao expoe
+          # de fato. O encontros-tech nao tem /health nem /ready; tem /metrics
+          # (PrometheusMetrics(app), src/main.py), que nao toca o banco, e
+          # /api/events/, que toca. Ver DECISOES.md, decisao 5.
+          startupProbe:
+            # cobre a janela de import do main.py, onde roda
+            # Base.metadata.create_all(bind=engine) antes do Flask responder
+            # qualquer coisa. Nao cobre banco fora do ar — isso e crash antes
+            # do bind, nao lentidao. Ver decisao 2.
+            httpGet: {path: /metrics, port: http}
+            periodSeconds: 5
+            failureThreshold: 24        # ate 2 minutos
+          livenessProbe:
+            # "ainda estou vivo?" — sem o banco no caminho, senao banco lento
+            # vira reinicio, e reinicio nao conserta banco
+            httpGet: {path: /metrics, port: http}
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            # "posso receber trafego?" — toda pagina e toda rota de API deste
+            # app consulta o Postgres (event_service.py), entao a checagem
+            # precisa tocar o banco. limit=1 para pesar o minimo possivel a
+            # cada checagem (custo aceito, mitigado por periodSeconds).
+            httpGet: {path: "/api/events/?limit=1", port: http}
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            # 2.1 presenca e obrigatoria; valor e estimativa declarada.
+            # Flask + gunicorn -w 4 (do Dockerfile removido, recuperado do
+            # historico do git) + SQLAlchemy + pydantic: quatro processos
+            # Python por replica, nao um. Ver decisao 3.
+            requests: {cpu: 200m, memory: 384Mi}
+            limits:   {cpu: "1", memory: 640Mi}
+          securityContext:
+            # 3.2, parte de CONTAINER. Estes tres nao existem em PodSecurityContext.
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            # readOnlyRootFilesystem obriga caminho gravavel para o que a
+            # aplicacao escreve: PROMETHEUS_MULTIPROC_DIR (subdiretorio de
+            # /tmp, criado pelo proprio main.py via os.makedirs) e o arquivo
+            # temporario de worker do gunicorn, que tambem usa /tmp por
+            # padrao. Um unico emptyDir em /tmp cobre os dois.
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - {name: tmp, emptyDir: {}}
+      terminationGracePeriodSeconds: 30   # 2.6 padrao mantido — sem dado de drenagem real; ver decisao 9
