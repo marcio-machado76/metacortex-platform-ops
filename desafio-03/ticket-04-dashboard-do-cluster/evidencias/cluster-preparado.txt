@@ -1,0 +1,56 @@
+NAMESPACE            NAME                                     READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS               IMAGES                                                        SELECTOR
+kube-system          deployment.apps/coredns                  2/2     2            2           11h     coredns                  registry.k8s.io/coredns/coredns:v1.11.1                       k8s-app=kube-dns
+local-path-storage   deployment.apps/local-path-provisioner   1/1     1            1           11h     local-path-provisioner   docker.io/kindest/local-path-provisioner:v20240813-c6f155d6   app=local-path-provisioner
+nyx-dev              deployment.apps/nyx-api                  1/1     1            1           7m37s   api                      registry.metacortex.io/nyx/api:2.9.1                          app.kubernetes.io/instance=nyx-dev,app.kubernetes.io/name=nyx-api
+nyx-prod             deployment.apps/nyx-api                  0/2     2            0           11h     api                      fabricioveronez/kube-news:v1                                  app=nyx-api
+nyx-prod             deployment.apps/nyx-postgres             1/1     1            1           11h     postgres                 postgres:16-alpine                                            app=nyx-postgres
+nyx-stg              deployment.apps/nyx-api                  2/2     2            2           11h     api                      fabricioveronez/kube-news:v1                                  app=nyxapi
+nyx-stg              deployment.apps/nyx-postgres             1/1     1            1           11h     postgres                 postgres:16-alpine                                            app=nyx-postgres
+orion-prod           deployment.apps/orion-web                2/2     2            2           5m19s   web                      registry.metacortex.io/orion/web:v14                          app.kubernetes.io/instance=orion-prod,app.kubernetes.io/name=orion-web
+orion-stg            deployment.apps/orion-postgres           1/1     1            1           11h     postgres                 postgres:16-alpine                                            app=orion-postgres
+orion-stg            deployment.apps/orion-web                0/3     3            0           11h     web                      fabricioveronez/fake-shop:v1.14.2                             app=orion-web
+
+NAMESPACE    NAME                              READY   AGE     CONTAINERS   IMAGES
+nyx-dev      statefulset.apps/nyx-postgres     1/1     7m37s   postgres     registry.metacortex.io/nyx/postgres:16-alpine
+orion-prod   statefulset.apps/orion-postgres   1/1     5m19s   postgres     registry.metacortex.io/orion/postgres:16-alpine
+
+NAMESPACE     NAME                     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                  AGE     SELECTOR
+default       service/kubernetes       ClusterIP   10.96.0.1       <none>        443/TCP                  11h     <none>
+kube-system   service/kube-dns         ClusterIP   10.96.0.10      <none>        53/UDP,53/TCP,9153/TCP   11h     k8s-app=kube-dns
+nyx-dev       service/nyx-api          ClusterIP   10.96.84.28     <none>        80/TCP                   7m37s   app.kubernetes.io/instance=nyx-dev,app.kubernetes.io/name=nyx-api
+nyx-dev       service/nyx-postgres     ClusterIP   10.96.197.236   <none>        5432/TCP                 7m37s   app.kubernetes.io/instance=nyx-dev,app.kubernetes.io/name=nyx-postgres
+nyx-prod      service/nyx-api          ClusterIP   10.96.125.1     <none>        80/TCP                   11h     app=nyx-api
+nyx-prod      service/nyx-postgres     ClusterIP   10.96.213.226   <none>        5432/TCP                 11h     app=nyx-postgres
+nyx-stg       service/nyx-api          ClusterIP   10.96.232.99    <none>        80/TCP                   11h     app=nyx-api
+nyx-stg       service/nyx-postgres     ClusterIP   10.96.177.164   <none>        5432/TCP                 11h     app=nyx-postgres
+orion-prod    service/orion-postgres   ClusterIP   10.96.120.199   <none>        5432/TCP                 5m19s   app.kubernetes.io/instance=orion-prod,app.kubernetes.io/name=orion-postgres
+orion-prod    service/orion-web        ClusterIP   10.96.71.40     <none>        80/TCP                   5m19s   app.kubernetes.io/instance=orion-prod,app.kubernetes.io/name=orion-web
+orion-stg     service/orion-postgres   ClusterIP   10.96.96.28     <none>        5432/TCP                 11h     app=orion-postgres
+orion-stg     service/orion-web        ClusterIP   10.96.26.192    <none>        80/TCP                   11h     app=orion-web
+NAMESPACE            NAME                                                   READY   STATUS             RESTARTS          AGE
+kube-system          coredns-6f6b679f8f-d9wtm                               1/1     Running            0                 11h
+kube-system          coredns-6f6b679f8f-hrnxk                               1/1     Running            0                 11h
+kube-system          etcd-metacortex-lab-control-plane                      1/1     Running            0                 11h
+kube-system          kindnet-jw6pb                                          1/1     Running            0                 11h
+kube-system          kube-apiserver-metacortex-lab-control-plane            1/1     Running            0                 11h
+kube-system          kube-controller-manager-metacortex-lab-control-plane   1/1     Running            0                 11h
+kube-system          kube-proxy-hjxcc                                       1/1     Running            0                 11h
+kube-system          kube-scheduler-metacortex-lab-control-plane            1/1     Running            0                 11h
+local-path-storage   local-path-provisioner-57c5987fd4-tnqmz                1/1     Running            0                 11h
+nyx-dev              nyx-api-77bb84897f-nlfcb                               1/1     Running            2 (7m35s ago)     7m37s
+nyx-dev              nyx-postgres-0                                         1/1     Running            0                 7m37s
+nyx-prod             nyx-api-79c5f4d8d7-2w5kd                               0/1     CrashLoopBackOff   133 (2m1s ago)    11h
+nyx-prod             nyx-api-79c5f4d8d7-hkw2t                               0/1     CrashLoopBackOff   133 (2m27s ago)   11h
+nyx-prod             nyx-postgres-5877b89bf8-5g58h                          1/1     Running            0                 11h
+nyx-stg              nyx-api-5cd5cdbf9d-5qf22                               1/1     Running            0                 11h
+nyx-stg              nyx-api-5cd5cdbf9d-8ppxv                               1/1     Running            1 (11h ago)       11h
+nyx-stg              nyx-postgres-5877b89bf8-rwwvk                          1/1     Running            0                 11h
+orion-prod           orion-postgres-0                                       1/1     Running            0                 5m19s
+orion-prod           orion-web-55c5f874d7-8kfrv                             1/1     Running            0                 19s
+orion-prod           orion-web-55c5f874d7-jngkk                             1/1     Running            0                 26s
+orion-prod           orion-web-774b495bc5-8g4d9                             1/1     Terminating        0                 5m19s
+orion-prod           orion-web-774b495bc5-k9pzn                             1/1     Terminating        0                 5m19s
+orion-stg            orion-postgres-5797459b75-pkdz4                        1/1     Running            0                 11h
+orion-stg            orion-web-556748f4f8-6dxbk                             0/1     ImagePullBackOff   0                 11h
+orion-stg            orion-web-556748f4f8-fqtnb                             0/1     ImagePullBackOff   0                 11h
+orion-stg            orion-web-556748f4f8-ww7km                             0/1     ImagePullBackOff   0                 11h

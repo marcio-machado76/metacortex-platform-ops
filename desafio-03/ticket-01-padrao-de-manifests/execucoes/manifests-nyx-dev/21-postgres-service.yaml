@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nyx-postgres
+  namespace: nyx-dev
+  labels:
+    app.kubernetes.io/name: nyx-postgres
+    app.kubernetes.io/instance: nyx-dev
+    app.kubernetes.io/part-of: nyx
+    app.kubernetes.io/managed-by: platform
+  annotations:
+    metacortex.io/owner: plataforma-sre
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: nyx-postgres
+    app.kubernetes.io/instance: nyx-dev
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
