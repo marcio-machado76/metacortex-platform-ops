@@ -25,6 +25,7 @@ workloads/
 # --- Runtime ---
 __pycache__/
 *.pyc
+*.egg-info/
 .venv/
 venv/
 node_modules/
