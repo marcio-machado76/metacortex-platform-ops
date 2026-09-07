@@ -1,6 +1,9 @@
 # --- Configuracao local do agente (opcao B: mora na raiz, nao e entregavel) ---
-.claude/
-.mcp.json
+# Ancorados com barra inicial de proposito: sem ela, o padrao casa em QUALQUER
+# profundidade e engoliria a copia canonica do .mcp.json que o Ticket 02 entrega
+# em desafio-03/ticket-02-triagem-no-cluster/mcp/.
+/.claude/
+/.mcp.json
 
 # --- Credenciais: nunca versionar ---
 .secrets/
@@ -26,6 +29,7 @@ workloads/
 __pycache__/
 *.pyc
 *.egg-info/
+.pytest_cache/
 .venv/
 venv/
 node_modules/
