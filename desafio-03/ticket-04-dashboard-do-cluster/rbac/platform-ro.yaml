@@ -1,0 +1,42 @@
+# Contexto recomendado para rodar o dashboard.
+#
+# Leitura nos seis tipos que a tela usa, e nada alem disso. Sem verbo de
+# escrita, sem `watch` (a v1 atualiza por intervalo, nao por watch), e sem
+# `secrets` — a tela nunca le secret, entao negar e de graca.
+#
+# Esta e a camada da garantia de so-leitura que o cluster aplica. As outras
+# duas sao o ponto unico de acesso a API no codigo e o teste que falha se
+# aparecer verbo de escrita.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: platform-ro
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: platform-ro
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces", "pods", "services", "events"]
+    verbs: ["get", "list"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets"]
+    verbs: ["get", "list"]
+  - apiGroups: ["discovery.k8s.io"]
+    resources: ["endpointslices"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: platform-ro
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: platform-ro
+subjects:
+  - kind: ServiceAccount
+    name: platform-ro
+    namespace: kube-system

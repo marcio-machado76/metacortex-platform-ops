@@ -207,6 +207,17 @@ O primeiro é a garantia, o segundo é a demonstração. E negar `secrets` no pe
 recomendado é de graça: a tela nunca lê secret, então a restrição não custa nada e
 faz parte de "a garantia visível no projeto".
 
+E há um efeito que só apareceu ao escrever o perfil: **o `platform-ro` não concede
+`watch`.** Com isso a D3 deixa de ser afirmação num documento e vira coisa que o
+cluster recusaria. Se alguém trocar o intervalo fixo por watch sem reabrir a
+decisão, não é o código que reclama — é o apiserver. A decisão de desenho passa a
+ter quem a defenda depois que a conversa que a produziu for esquecida.
+
+```bash
+kubectl auth can-i watch pods --as=system:serviceaccount:kube-system:platform-ro -n nyx-prod
+# no
+```
+
 A diferença entre "contexto de evidência" e "contexto recomendado" é o que muda o
 peso da garantia. Se o RBAC restrito for só o cenário de teste, o só-leitura
 continua sendo promessa do código. Sendo o jeito documentado de rodar — README
@@ -223,13 +234,13 @@ descartar.
 | # | Decisão | Escolha | Principal alternativa descartada, e por quê |
 |---|---|---|---|
 | D1 | Linguagem e stack | Python + Textual (TUI) | **Web local (FastAPI)**: sobe servidor HTTP na estação com a credencial de produção atrás, para uma ferramenta que só lê. E snapshot de TUI é texto — versiona e diffa em PR; PNG ninguém revisa |
-| D2 | Acesso à API | cliente oficial `kubernetes`, `_preload_content=False` | **`kubectl` como subprocesso**: morre no requisito mais difícil — distinguir 403 em um tipo de "cluster não responde" viraria regex em mensagem de erro |
+| D2 | Acesso à API | cliente oficial `kubernetes`, `_preload_content=False`, versão fixada | **`kubectl` como subprocesso**: morre no requisito mais difícil — distinguir 403 em um tipo de "cluster não responde" viraria regex em mensagem de erro |
 | D3 | Atualização da tela | intervalo fixo escopado ao namespace + refresh manual; watch fora da v1 | **Watch**: ganha no eixo de carga, perde no de manutenção. Resync, `410 Gone` e bookmarks é o código que um time de infra herda e não mexe |
 | D4 | Primeira fatia | o mínimo do enunciado + StatefulSet | **Só Deployment**: o enunciado diz "no mínimo", o que autoriza o acréscimo; sem ele metade do workload de validação aparece como pod sem controlador. DaemonSet fica fora |
 | D5 | Endereços | `EndpointSlice`, agregado por `kubernetes.io/service-name` | **`Endpoints`**: além da aposentadoria, embaralha "sem endereço" e "endereço não pronto", que no cluster são dois chamados diferentes |
 | D6 | Eventos | `core/v1` | **`events.k8s.io/v1`**: marca como `deprecated*` os campos que a triagem usa, e o kubelet ainda escreve pela `core/v1` — medido |
 | D7 | Relatar ou opinar | relata o vocabulário da API; ordena por anormalidade com o motivo visível; mostra ausência de probe | **Coluna de severidade derivada**: afirmaria saúde que a API não dá — o `orion-web` sem probe prova que `Ready` não sustenta a afirmação |
-| D8 | Garantia de só-ler | ponto único de acesso + teste contra verbo de escrita + dois contextos RBAC | **Um contexto só, sem `events`**: negaria um requisito explícito da tela |
+| D8 | Garantia de só-ler | ponto único de acesso + teste contra verbo de escrita + dois contextos RBAC | **Um contexto só, sem `events`**: negaria um requisito explícito da tela. O ponto único acumula um segundo papel — ver "A fronteira de contenção" |
 | D9 | Ausente, nulo e vazio | normaliza com `or []` na fronteira; nunca testa presença de chave | **Testar presença de chave**: medido errando entre `Endpoints` e `EndpointSlice`, e de novo em `series` |
 | D10 | Falha por tipo de recurso | envelope `ok · vazio · negado · indisponível` | **`try/except` no ponto de uso**: espalha a degradação e deixa a tela em branco quando alguém esquece um caso |
 | D11 | Cluster de validação | mantém os três namespaces do Ticket 02; fake-shop em `orion-prod`, kube-news em `nyx-dev` | **Limpar o cluster**: jogaria fora os três estados patológicos, que são o dado de teste mais caro que existe aqui |
@@ -240,11 +251,14 @@ descartar.
   `ApiException` com `.status` preenchido num 403. **A D2 inteira depende disso.**
   Se falhar, a escolha vira `kubectl` como subprocesso e a classificação de erro
   precisa de outro desenho. É a primeira coisa a rodar antes de a spec fechar.
+  **Medida e confirmada logo depois deste documento — ver a última seção.**
 - **Como fabricar a credencial expirada.** Cluster inalcançável e permissão parcial
   saem do ambiente; certificado vencido ou token inválido precisa ser construído de
   propósito. Fica registrado como decisão de evidência para não virar o cenário que
   ninguém testa — e é justamente ele que prova a distinção que a D2 comprou:
   401 ≠ 403 ≠ conexão recusada.
+  **Fabricado e medido depois deste documento — ver a última seção. O resultado
+  contraria o que se esperava dele.**
 - **"Eventos recentes" não está definido** — janela de tempo, ordenação (a API não
   devolve ordenado) e o TTL de eventos deste apiserver, que precisa ser medido e
   não assumido.
@@ -279,3 +293,127 @@ outro documento; estas são as que aconteceram antes de existir código.
   servidor configurado" — que parece ausência de configuração e não recusa de
   autorização. Ferramenta ausente por um motivo que não aparece onde a falha se
   manifesta.
+
+## Depois do brainstorm — a hipótese da D2, medida
+
+Esta seção foi acrescentada depois de o documento ser commitado. O que está
+acima não foi reescrito: o ponto em aberto continua registrado como estava, e a
+resolução vem aqui, porque a ordem em que se soube das coisas é parte da
+evidência.
+
+A hipótese se confirmou nos três cenários, e a D10 saiu provada de brinde — no
+mesmo cliente e na mesma sessão, `events` devolveu 403 e `pods` devolveu três
+itens.
+
+| Cenário | Medido |
+|---|---|
+| 403, `platform-ro-sem-events` lendo `events` | `ForbiddenException`, `.status = 403` |
+| 401, token inválido | `UnauthorizedException`, `.status = 401` |
+| Conexão recusada | `urllib3.exceptions.MaxRetryError`, sem `.status` |
+
+Evidência crua em `evidencias/hipotese-d2-excecoes.stdout.txt`, leitura em
+`evidencias/hipotese-d2-excecoes.md`, script em
+`verificacoes/verificar-hipotese-d2.py`, perfis RBAC em `rbac/`.
+
+**Uma frase da conversa era larga demais e a medição a estreita.** Foi dito que
+`_preload_content=False` seria a única forma de atender aos dois requisitos
+difíceis ao mesmo tempo. Não é: o modelo tipado levanta a mesma exceção com o
+mesmo `.status`. O tratamento de erro sai de graça nos dois modos, e o modo cru
+compra **uma** coisa — a forma do JSON. A tabela da D2 já dizia isso
+corretamente; a frase, não. A escolha não muda, a justificativa fica mais
+estreita e mais honesta.
+
+Duas consequências de desenho que só apareceram rodando:
+
+- O cliente levanta **subclasses tipadas** (`ForbiddenException`,
+  `UnauthorizedException`), então o envelope da D10 ramifica por tipo de exceção
+  em vez de comparar `.status` com número mágico.
+- A falha de conexão vem do `urllib3`, **dependência transitiva**. O ponto único
+  de acesso captura três famílias de exceção, e uma delas não pertence à
+  biblioteca que a D2 escolheu.
+
+E uma entrada para o log que é do assunto do ticket: ao conferir o campo `series`
+dos eventos, a verificação usou `i.get('series')`, viu `None` e reportou
+`series: null`. **O `.get()` colapsa ausente e nulo no mesmo `None` — a mesma
+perda que o modelo tipado provoca, que é o motivo da D2.** O teste certo é
+`'series' in i`, e ele mostra a chave **ausente** nos três eventos. A conclusão da
+D6 não muda; a lição é que a armadilha do ticket foi cometida dentro da
+verificação feita para demonstrá-la. Se ela pega quem está olhando para ela de
+propósito, um `or []` distraído no código de renderização é questão de tempo.
+
+## A fronteira de contenção
+
+Três riscos de durabilidade se acumularam durante a verificação, e o mitigante é o
+mesmo para os três:
+
+| Risco | O que pode mudar debaixo do projeto |
+|---|---|
+| `_preload_content` | é API com sublinhado — convenção de privado. Nada garante que sobreviva a uma versão maior do cliente |
+| `urllib3.exceptions.MaxRetryError` | vem de uma **dependência transitiva**, que a D2 não escolheu e não controla |
+| `Endpoints` | já está em trilha de aposentadoria, e o `EndpointSlice` que o substitui tem forma diferente |
+
+O ponto único de acesso à API da D8 nasceu como o lugar onde a garantia de
+só-leitura mora. Ele acumula um segundo papel, e vale dizer isto explicitamente
+porque muda o que se cobra dele numa revisão: **é a fronteira de contenção de tudo
+que pode mudar debaixo do projeto.** Os três riscos acima ficam confinados a um
+módulo, e o resto do código conversa com o envelope da D10, não com o cliente.
+
+A mitigação que a D2 registra, em duas linhas:
+
+- **versão do cliente fixada** em `requirements.txt`, como o Ticket 03 fez com o
+  Paramiko;
+- **nenhum outro módulo importa `kubernetes` nem `urllib3`** — o mesmo teste que
+  falha diante de verbo de escrita falha diante desse import.
+
+O teste da D8 passa a provar duas coisas com o mesmo mecanismo: que ninguém
+escreve no cluster, e que ninguém fura a fronteira.
+
+## O cenário 6 — a suposição sobre a credencial expirada estava errada
+
+O 401 do cenário 3 usa token inválido. Mas o kubeconfig do `kind` autentica por
+**certificado de cliente**, e a expectativa registrada era esta: certificado
+vencido não produziria 401, quebraria no handshake TLS antes de existir resposta
+HTTP, caindo no mesmo balde da conexão recusada. Se fosse assim, distinguir
+"credencial expirada" de "cluster que não responde" — que o enunciado exige —
+teria de sair da mensagem interna da exceção, não do tipo. Seria decisão de
+desenho, não detalhe.
+
+Foi fabricado um certificado de cliente assinado pela CA do cluster, com validade
+em 2020:
+
+```
+validade: notBefore=Jan  1 00:00:00 2020 GMT  notAfter=Jan  2 00:00:00 2020 GMT
+```
+
+**A medição contraria a expectativa:**
+
+```
+tipo da excecao : kubernetes.client.exceptions.UnauthorizedException
+.status         : 401
+mesmo TIPO do cenario 4 (conexao recusada)?  False
+```
+
+O handshake TLS **completa**. O apiserver pede o certificado de cliente em vez de
+exigi-lo — é o que permite que token e certificado convivam no mesmo endpoint — e
+então a verificação falha na camada de autenticação, não na de transporte. O
+pedido chega como anônimo, e anônimo é 401.
+
+Consequência para o desenho, e é boa: **os três ambientes hostis do enunciado se
+separam por tipo de exceção, sem ler mensagem nenhuma.**
+
+| Ambiente hostil | Como chega |
+|---|---|
+| Permissão negada num tipo | `ForbiddenException`, `.status = 403` |
+| Credencial expirada ou inválida | `UnauthorizedException`, `.status = 401` |
+| Cluster que não responde | `urllib3.exceptions.MaxRetryError` |
+
+Duas ressalvas que ficam registradas para não virarem surpresa:
+
+- **401 não separa "expirada" de "inválida".** As duas formas produzem o mesmo
+  status e o mesmo corpo. Para a tela isso não é problema — as duas dizem "sua
+  credencial não serve" e pedem a mesma ação — mas a tela não deve afirmar
+  *expirada*, porque não é isso que ela sabe.
+- **A conclusão vale para este apiserver.** Um proxy à frente do cluster exigindo
+  mTLS quebraria no transporte, como a expectativa original previa. O ponto único
+  de acesso continua tendo que tratar a família de erro do transporte; o que muda é
+  que ela não é o caminho normal da credencial vencida.
