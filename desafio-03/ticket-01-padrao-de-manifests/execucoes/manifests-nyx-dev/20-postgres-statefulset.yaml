@@ -1,0 +1,107 @@
+# Banco do kube-news, cliente nyx, ambiente de desenvolvimento.
+#
+# NAO precisa de excecao a regra 2.3, ao contrario do orion-postgres: a 2.3 so
+# vale em prod, e este e um ambiente de dev. A anotacao de excecao que existe
+# no manifesto do orion seria ruido aqui. Ver DECISOES.md, decisao 1.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nyx-postgres
+  namespace: nyx-dev
+  labels:
+    app.kubernetes.io/name: nyx-postgres
+    app.kubernetes.io/instance: nyx-dev
+    app.kubernetes.io/part-of: nyx
+    app.kubernetes.io/managed-by: platform
+  annotations:
+    metacortex.io/owner: plataforma-sre
+spec:
+  serviceName: nyx-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nyx-postgres
+      app.kubernetes.io/instance: nyx-dev
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nyx-postgres
+        app.kubernetes.io/instance: nyx-dev
+        app.kubernetes.io/part-of: nyx
+        app.kubernetes.io/managed-by: platform
+    spec:
+      serviceAccountName: nyx-postgres
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        # 70 e o dono dos arquivos do banco na imagem alpine. O runAsUser:
+        # 10001 do exemplo da regra 3.2 e ilustrativo — o requisito e nao
+        # rodar como root, e isso esta atendido.
+        runAsUser: 70
+        runAsGroup: 70
+        fsGroup: 70
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: postgres              # 1.6
+          image: registry.metacortex.io/nyx/postgres:16-alpine  # 3.1, 3.7
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              # o mesmo DB_DATABASE do ConfigMap do nyx-api
+              value: kubedevnews
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef: {name: nyx-db, key: username}
+            - name: POSTGRES_PASSWORD   # 3.3
+              valueFrom:
+                secretKeyRef: {name: nyx-db, key: password}
+            - name: PGDATA
+              # subdiretorio proprio: montado na raiz do volume, o initdb
+              # recusa por causa do lost+found
+              value: /var/lib/postgresql/data/pgdata
+          startupProbe:
+            exec: {command: ["pg_isready", "-U", "kubedevnews", "-d", "kubedevnews"]}
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:                # 2.2
+            exec: {command: ["pg_isready", "-U", "kubedevnews", "-d", "kubedevnews"]}
+            periodSeconds: 20
+            timeoutSeconds: 5
+          readinessProbe:
+            exec: {command: ["pg_isready", "-U", "kubedevnews", "-d", "kubedevnews"]}
+            periodSeconds: 10
+            timeoutSeconds: 3
+          resources:                    # 2.1
+            requests: {cpu: 100m, memory: 192Mi}
+            limits:   {cpu: 500m, memory: 384Mi}
+          securityContext:              # 3.2
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - {name: dados, mountPath: /var/lib/postgresql/data}
+            # com filesystem raiz somente-leitura, o Postgres ainda precisa
+            # escrever o socket unix e temporarios
+            - {name: run, mountPath: /var/run/postgresql}
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - {name: run, emptyDir: {}}
+        - {name: tmp, emptyDir: {}}
+      terminationGracePeriodSeconds: 60  # 2.6 banco precisa de mais que 30s
+  volumeClaimTemplates:
+    - metadata:
+        name: dados
+        labels:
+          app.kubernetes.io/name: nyx-postgres
+          app.kubernetes.io/instance: nyx-dev
+          app.kubernetes.io/part-of: nyx
+          app.kubernetes.io/managed-by: platform
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

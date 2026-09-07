@@ -1,0 +1,42 @@
+# Contexto de evidencia, nao de uso.
+#
+# Identico ao platform-ro, menos `events`. Existe para produzir o cenario que
+# o enunciado chama de "o caso mais interessante": permissao negada para um
+# tipo de recurso enquanto os outros continuam acessiveis.
+#
+# Nao e o jeito recomendado de rodar o dashboard: os eventos do namespace
+# selecionado sao requisito explicito da tela, e um contexto que os nega
+# entrega uma ferramenta incompleta.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: platform-ro-sem-events
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: platform-ro-sem-events
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces", "pods", "services"]
+    verbs: ["get", "list"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets"]
+    verbs: ["get", "list"]
+  - apiGroups: ["discovery.k8s.io"]
+    resources: ["endpointslices"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: platform-ro-sem-events
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: platform-ro-sem-events
+subjects:
+  - kind: ServiceAccount
+    name: platform-ro-sem-events
+    namespace: kube-system

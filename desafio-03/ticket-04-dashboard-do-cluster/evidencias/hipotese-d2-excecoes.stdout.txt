@@ -1,0 +1,101 @@
+cliente kubernetes : 36.0.3
+kubernetes.__version__ : 36.0.3
+python             : 3.10.12
+servidor           : https://127.0.0.1:34969
+
+========================================================================
+CENARIO 1 e 2 — 403 num tipo, sucesso nos outros (platform-ro-sem-events)
+========================================================================
+
+[1a] list_namespaced_event  _preload_content=False (o que a D2 propoe)
+  tipo da excecao : kubernetes.client.exceptions.ForbiddenException
+  e ApiException? : True
+  .status         : 403
+  .reason         : 'Forbidden'
+  .body (200)     : {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"events is forbidden: User \"system:serviceaccount:kube-system:platform-ro-sem-events\" cannot list resource \"events\" in
+  str(e) (200)    : (403)
+Reason: Forbidden
+HTTP response headers: HTTPHeaderDict({'Audit-Id': 'feab4a00-9fa9-47ba-8137-dabf148b156c', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Content-
+
+[1b] list_namespaced_event  modelo tipado (para comparar)
+  tipo da excecao : kubernetes.client.exceptions.ForbiddenException
+  e ApiException? : True
+  .status         : 403
+  .reason         : 'Forbidden'
+  .body (200)     : {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"events is forbidden: User \"system:serviceaccount:kube-system:platform-ro-sem-events\" cannot list resource \"events\" in
+  str(e) (200)    : (403)
+Reason: Forbidden
+HTTP response headers: HTTPHeaderDict({'Audit-Id': 'f0c96581-4c5f-4ecc-8a1e-194d5cb12dd3', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Content-
+
+[2 ] list_namespaced_pod    _preload_content=False (outro tipo, mesmo cliente)
+  SUCESSO — resposta crua, 3 itens
+
+  --> .status preservado com _preload_content=False?  True
+  --> mesmo .status no cru e no tipado?                True
+
+========================================================================
+CENARIO 3 — 401, credencial invalida
+========================================================================
+
+[3 ] list_namespaced_pod    _preload_content=False
+  tipo da excecao : kubernetes.client.exceptions.UnauthorizedException
+  e ApiException? : True
+  .status         : 401
+  .reason         : 'Unauthorized'
+  .body (200)     : {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"Unauthorized","reason":"Unauthorized","code":401}
+
+  str(e) (200)    : (401)
+Reason: Unauthorized
+HTTP response headers: HTTPHeaderDict({'Audit-Id': '74862f4f-f271-4f9c-ae73-95e26a4d5955', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'Date': 
+
+  --> 401 distinto de 403?  True
+
+========================================================================
+CENARIO 4 — conexao recusada, endereco morto
+========================================================================
+
+[4 ] list_namespaced_pod    _preload_content=False
+  tipo da excecao : urllib3.exceptions.MaxRetryError
+  e ApiException? : False
+  .status         : '<ATRIBUTO AUSENTE>'
+  .reason         : NewConnectionError("HTTPSConnection(host='127.0.0.1', port=1): Failed to establish a new connection: [Errno 111] Connection refused")
+  .body           : None
+  str(e) (200)    : HTTPSConnectionPool(host='127.0.0.1', port=1): Max retries exceeded with url: /api/v1/namespaces/nyx-prod/pods (Caused by NewConnectionError("HTTPSConnection(host='127.0.0.1', port=1): Failed to estab
+
+  --> tipo distinto de ApiException?  True
+
+========================================================================
+CENARIO 5 — a forma do JSON: cru contra tipado (D9)
+========================================================================
+
+  Endpoints/nyx-api  cru    : chaves de topo = ['metadata']
+                             'subsets' presente? False
+  EndpointSlice      cru    : 'endpoints' presente? True | valor = None
+
+  Endpoints/nyx-api  tipado : .subsets   = None
+  EndpointSlice      tipado : .endpoints = None
+
+  --> no cru, a diferenca entre ausente e nulo sobrevive.
+  --> no tipado, as duas viram None e a diferenca some.
+
+========================================================================
+CENARIO 6 — certificado de cliente vencido (a outra forma de credencial expirada)
+========================================================================
+
+  certificado: /tmp/claude-1000/-home-marcio-Documentos-pos-graduacao-desafios-desafios-skills-metacortex-platform-ops-metacortex-platform-ops/1ba32c97-a97d-44f4-9b99-5dd9bcd9f707/scratchpad/cert-vencido/cliente-vencido.crt
+  validade  : notBefore=Jan  1 00:00:00 2020 GMT notAfter=Jan  2 00:00:00 2020 GMT
+
+[6 ] list_namespaced_pod    _preload_content=False
+  tipo da excecao : kubernetes.client.exceptions.UnauthorizedException
+  e ApiException? : True
+  .status         : 401
+  .reason         : 'Unauthorized'
+  .body (200)     : {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"Unauthorized","reason":"Unauthorized","code":401}
+
+  str(e) (200)    : (401)
+Reason: Unauthorized
+HTTP response headers: HTTPHeaderDict({'Audit-Id': 'd19fe2cb-98ba-4ab1-b02b-36f83084cc56', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'Date': 
+
+  --> mesmo TIPO do cenario 4 (conexao recusada)?  False
+  --> tem .status para distinguir?                 True
+  --> a distincao teria de sair da mensagem interna, nao do tipo.

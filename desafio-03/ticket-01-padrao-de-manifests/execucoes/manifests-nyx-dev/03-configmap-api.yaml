@@ -1,0 +1,24 @@
+# 3.3 aqui entra so o que NAO e sensivel. Usuario e senha vem do Secret
+# nyx-db, que nao e versionado.
+#
+# Os nomes das chaves saem de src/models/post.js do kube-news, nao de
+# convencao: DB_DATABASE, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT e
+# DB_SSL_REQUIRE. Nao existe DATABASE_URL — ver DECISOES.md, decisao 8.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nyx-api
+  namespace: nyx-dev
+  labels:
+    app.kubernetes.io/name: nyx-api
+    app.kubernetes.io/instance: nyx-dev
+    app.kubernetes.io/part-of: nyx
+    app.kubernetes.io/managed-by: platform
+  annotations:
+    metacortex.io/owner: plataforma-sre
+data:
+  DB_HOST: nyx-postgres
+  DB_DATABASE: kubedevnews
+  DB_PORT: "5432"
+  # strToBool em src/models/post.js: so a string "true" liga o SSL
+  DB_SSL_REQUIRE: "false"
